@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let chartPriceHistogram = null;
     let chartTimelineValue = null;
 
+    const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://127.0.0.1:8001' 
+    : window.location.origin;
 
     // ============ RENDER DF1 - 16 CỘT ============
     function renderStandardData(data) {
@@ -434,10 +437,6 @@ function matchQuery(text, parsedQuery) {
             drawCharts([], []);
         });
     }
-
-    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://127.0.0.1:8001' 
-    : '';  // Production dùng relative URL
 
     // Load dữ liệu từ API
     Promise.all([
