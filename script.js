@@ -458,8 +458,8 @@ function matchQuery(text, parsedQuery) {
         fetchWithRetry('/api/df1'),
         fetchWithRetry('/api/df2')
     ]).then(([res1, res2]) => {
-        df1 = res1.data || res1 || [];
-        df2 = res2.data || res2 || [];
+        df1 = res1.data;
+        df2 = res2.data;
         
         console.log(`✅ Loaded df1: ${df1.length} records`);
         console.log(`✅ Loaded df2: ${df2.length} records`);
@@ -472,7 +472,7 @@ function matchQuery(text, parsedQuery) {
 
     }).catch(err => {
         console.error('❌ Error loading data:', err);
-        console.error('⚠️ Vui lòng chạy server.py trước khi mở trang này');
+        console.error('⚠️ Server có thể đang khởi động, vui lòng đợi 30s và refresh lại');
         initEmptyCharts(); 
     });
 
