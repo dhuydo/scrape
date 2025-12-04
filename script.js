@@ -438,10 +438,25 @@ function matchQuery(text, parsedQuery) {
         });
     }
 
+    // Hàm fetch với retry
+    async function fetchWithRetry(url, retries = 3, delay = 2000) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.log(`⏳ Attempt ${i + 1}/${retries} failed, retrying...`);
+                if (i === retries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+
     // Load dữ liệu từ API
     Promise.all([
-        fetch(`${API_BASE_URL}/api/df1`).then(r => r.json()),
-        fetch(`${API_BASE_URL}/api/df2`).then(r => r.json())
+        fetchWithRetry('/api/df1'),
+        fetchWithRetry('/api/df2')
     ]).then(([res1, res2]) => {
         df1 = res1.data || res1 || [];
         df2 = res2.data || res2 || [];
