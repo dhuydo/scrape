@@ -437,8 +437,8 @@ function matchQuery(text, parsedQuery) {
 
     // Load dữ liệu từ API
     Promise.all([
-        fetch('http://127.0.0.1:8001/api/df1').then(r => r.json()),
-        fetch('http://127.0.0.1:8001/api/df2').then(r => r.json())
+        fetch('/api/df1').then(r => r.json()),
+        fetch('/api/df2').then(r => r.json())
     ]).then(([res1, res2]) => {
         df1 = res1.data || res1 || [];
         df2 = res2.data || res2 || [];
