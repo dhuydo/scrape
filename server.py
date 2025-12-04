@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 import pandas as pd
 import numpy as np
 import os
@@ -15,9 +17,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files (CSS, JS)
+app.mount("/static", StaticFiles(directory="."), name="static")
+
 @app.get("/")
 def root():
-    return {"message": "Drug tender API is running"}
+    return FileResponse("index.html")
 
 @app.get("/api/df1")
 def get_df1():
