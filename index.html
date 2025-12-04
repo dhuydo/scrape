@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tra cứu kết quả đấu thầu thuốc</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <div class="page-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div>
+                <h1 class="app-title">
+                    <i data-feather="file-text" class="icon-main"></i>
+                    Hệ thống tra cứu Thuốc trúng thầu (Bản thử nghiệm)
+                </h1>
+            </div>
+        </header>
+
+        <!-- LAYOUT CHÍNH: TRÁI SEARCH / PHẢI DATA + CHARTS -->
+        <div class="main-layout">
+            <!-- CỘT TRÁI: SEARCH BAR -->
+            <aside class="sidebar-search">
+                <section class="search-section">
+                    <custom-search-form></custom-search-form>
+                </section>
+            </aside>
+
+            <!-- CỘT PHẢI: 2 BẢNG + BIỂU ĐỒ -->
+            <main class="main-content">
+                <!-- HAI BẢNG DỮ LIỆU - LUÔN SONG SONG -->
+                <section class="data-section" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; width: 100%; overflow: visible;">
+                    <!-- Bộ dữ liệu chuẩn - df1 (16 cột) -->
+                    <div class="data-card" style="min-width: 0; overflow: visible;">
+                        <div class="data-card-header">
+                            <div>
+                                <h2 class="data-card-title">
+                                    <span class="data-card-icon blue">
+                                        <i data-feather="shield"></i>
+                                    </span>
+                                    Dữ liệu chuẩn hóa
+                                </h2>
+                                <p class="data-card-desc">
+                                    Dữ liệu chi tiết với đầy đủ các trường thông tin
+                                </p>
+                            </div>
+                            <!-- <span class="data-badge badge-green">
+                                ✅
+                            </span> -->
+                        </div>
+                        <div class="table-wrapper">
+                            <div class="table-scroll">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã TBMT</th>
+                                            <th>Ngày phê duyệt</th>
+                                            <th>Đơn vị tính</th>
+                                            <th>Số lượng</th>
+                                            <th>Đơn giá (VND)</th>
+                                            <th>Thành tiền (VND)</th>
+                                            <th>Tên thuốc</th>
+                                            <th>Hoạt chất/Thành phần</th>
+                                            <th>Nồng độ, hàm lượng</th>
+                                            <th>Đường dùng</th>
+                                            <th>Dạng bào chế</th>
+                                            <th>Quy cách</th>
+                                            <th>Nhóm thuốc</th>
+                                            <th>GĐKLH hoặc GPNK</th>
+                                            <th>Cơ sở sản xuất</th>
+                                            <th>Xuất xứ</th>
+                                            <th>Nhà thầu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="standard-data">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bộ dữ liệu mở rộng - df2 (11 cột, không có search) -->
+                    <div class="data-card" style="min-width: 0; overflow: visible;">
+                        <div class="data-card-header">
+                            <div>
+                                <h2 class="data-card-title">
+                                    <span class="data-card-icon purple">
+                                        <i data-feather="layers"></i>
+                                    </span>
+                                    Dữ liệu tổng hợp
+                                </h2>
+                                <p class="data-card-desc">
+                                    Dữ liệu gộp từ nhiều nguồn
+                                </p>
+                            </div>
+                            <!-- <span class="data-badge badge-amber">
+                                ⚠️
+                            </span> -->
+                        </div>
+                        <div class="table-wrapper">
+                            <div class="table-scroll">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã TBMT</th>
+                                            <th>Ngày phê duyệt</th>
+                                            <th>Đơn vị tính</th>
+                                            <th>Khối lượng</th>
+                                            <th>Đơn giá (VND)</th>
+                                            <th>Thành tiền (VND)</th>
+                                            <th>Tên hàng hóa</th>
+                                            <th>Nhãn hiệu</th>
+                                            <th>Ký mã hiệu</th>
+                                            <th>Cấu hình, tính năng kỹ thuật</th>
+                                            <th>Xuất xứ</th>
+                                            <th>Hãng sản xuất</th>
+                                            <th>Nhà thầu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="extended-data">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- BIỂU ĐỒ -->
+                <section class="charts-section">
+                    <div class="charts-header">
+                        <div>
+                            <h2 class="charts-title">
+                                <i data-feather="activity" class="icon-main green"></i>
+                                Thống kê
+                            </h2>
+                            <p class="charts-subtitle">
+                                Tổng hợp theo các tiêu chí đã lọc.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-block">
+                            <h3>Phân bổ giá thuốc</h3>
+                            <canvas id="chart-price-histogram"></canvas>
+                        </div>
+                        <div class="chart-block">
+                            <h3>Tổng giá trị trúng thầu theo tháng</h3>
+                            <canvas id="chart-timeline-value"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            © 2025 Hệ thống tra cứu thuốc trúng thầu
+        </footer>
+    </div>
+
+    <!-- README MODAL -->
+    <div id="readme-modal" class="readme-modal">
+        <div class="readme-overlay"></div>
+        <div class="readme-content">
+            <button class="readme-close" id="close-readme" aria-label="Đóng">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            
+            <div class="readme-header">
+                <!-- <div class="readme-icon-header">🏥</div> -->
+                <h1>Chào mừng đến với Hệ thống tra cứu Thuốc trúng thầu</h1>
+                <!-- <p class="readme-subtitle">Tra cứu thông tin thuốc trúng thầu tại Việt Nam</p> -->
+            </div>
+
+            <div class="readme-body">
+                <section class="readme-section">
+                    <h2>Về ứng dụng</h2>
+                    <p>Hệ thống tra cứu Thuốc trúng thầu tại Việt Nam. Dữ liệu được thu thập và cập nhật từ <strong>Hệ thống mạng đấu thầu quốc gia</strong> (<a href="https://muasamcong.mpi.gov.vn" target="_blank">muasamcong.mpi.gov.vn</a>) - nền tảng chính thức do Bộ Tài chính quản lý.</p>
+                </section>
+
+                <section class="readme-section">
+                    <h2>Dữ liệu cung cấp</h2>
+                    <div class="readme-info-grid">
+                        <div class="readme-info-card">
+                            <div class="info-icon">💊</div>
+                            <h3>Thông tin thuốc</h3>
+                            <p>Tên thuốc, tên hoạt chất, nồng độ, hàm lượng, đường dùng, dạng bào chế, quy cách, nhóm thuốc, số đăng ký, cơ sở sản xuất, nước sản xuất</p>
+                        </div>
+                        <div class="readme-info-card">
+                            <div class="info-icon">📦</div>
+                            <h3>Thông tin sản phẩm thầu</h3>
+                            <p>Đơn vị tính, số lượng, đơn giá trúng thầu, thành tiền, nhà thầu trúng thầu</p>
+                        </div>
+                        <div class="readme-info-card">
+                            <div class="info-icon">📋</div>
+                            <h3>Thông tin thầu</h3>
+                            <p>Mã TBMT, chủ đầu tư, tên gói thầu, đấu thầu qua mạng, giá gói thầu, ngày phê duyệt, số quyết định phê duyệt, hình thức lựa chọn nhà thầu, phương thức lựa chọn nhà thầu</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="readme-section">
+                    <h2>Mục đích</h2>
+                    <p>Hỗ trợ cơ quan y tế, doanh nghiệp dược tra cứu thông tin thuốc trúng thầu nhanh chóng từ nguồn dữ liệu chính thống.</p>
+                </section>
+            </div>
+
+            <div class="readme-footer">
+                <label class="readme-checkbox">
+                    <input type="checkbox" id="dont-show-checkbox">
+                    <span>Không hiển thị lại lần sau</span>
+                </label>
+                <button class="btn-readme-primary" id="got-it-btn">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="readme-icon" class="readme-icon" style="display: none;">
+        <button id="open-readme" title="Xem giới thiệu">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V9H11V15ZM11 7H9V5H11V7Z" fill="currentColor"/>
+            </svg>
+            <span>Giới thiệu</span>
+        </button>
+    </div>
+
+    <div id="readme-icon" class="readme-icon" style="display: none;">
+        <button id="open-readme" title="Xem giới thiệu">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V9H11V15ZM11 7H9V5H11V7Z" fill="currentColor"/>
+            </svg>
+            <span>Giới thiệu</span>
+        </button>
+    </div>
+
+    <!-- Contact Icon -->
+    <div id="contact-icon" class="contact-icon" style="display: none;">
+        <button id="open-contact" title="Liên hệ">
+            <span>Liên hệ</span>
+        </button>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="readme-modal">
+        <div class="readme-overlay"></div>
+        <div class="readme-content contact-content">
+            <button class="readme-close" id="close-contact" aria-label="Đóng">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <div class="readme-header">
+                <!-- <div class="readme-icon-header">👥</div> -->
+                <h1>Thông tin về đội ngũ phát triển ứng dụng</h1>
+                <!-- <p class="readme-subtitle">Thông tin về đội ngũ phát triển ứng dụng</p> -->
+            </div>
+
+            <div class="readme-body">
+                <section class="readme-section">
+                    <h2>Giới thiệu</h2>
+                    <!-- <p>Ứng dụng được phát triển bởi nhóm nghiên cứu chuyên về phân tích dữ liệu y tế và đấu thầu công, với mục tiêu đem lại công cụ tra cứu minh bạch và hiệu quả cho cộng đồng.</p> -->
+                </section>
+
+                <section class="readme-section">
+                    <h2>Thành viên</h2>
+                    <div class="team-grid">
+                        <!-- <div class="team-card">
+                            <div class="team-avatar">👨‍💻</div>
+                            <h3>Hồ Thị Thanh Huyền</h3>
+                            <p class="team-role">Lead Developer</p>
+                            <p class="team-desc">Cô bé ngủ li bì</p>
+                        </div> -->
+                        <!-- <div class="team-card">
+                            <div class="team-avatar">👨‍💻</div>
+                            <h3>Hồ Thị Thanh Huyền</h3>
+                            <p class="team-role">Lead Developer</p>
+                            <p class="team-desc">Chịu trách nhiệm thiết kế hệ thống và phát triển backend</p>
+                        </div> -->
+                        <!-- <div class="team-card">
+                            <div class="team-avatar">👩‍💻</div>
+                            <h3>Trần Thị B</h3>
+                            <p class="team-role">Frontend Developer</p>
+                            <p class="team-desc">Thiết kế giao diện và trải nghiệm người dùng</p>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-avatar">👨‍🔬</div>
+                            <h3>Lê Văn C</h3>
+                            <p class="team-role">Data Analyst</p>
+                            <p class="team-desc">Phân tích và xử lý dữ liệu đấu thầu</p>
+                        </div> -->
+                    </div>
+                </section>
+
+                <section class="readme-section">
+                    <h2>Thông tin liên hệ</h2>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <!-- <span class="contact-icon">📧</span> -->
+                            <!-- <div>
+                                <strong>Email</strong>
+                                <p>bidX@gmail.com</p>
+                            </div> -->
+                        </div>
+                        <!-- <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <div>
+                                <strong>Website</strong>
+                                <p><a href="https://example.com" target="_blank">example.com</a></p>
+                            </div>
+                        </div> -->
+                        <!-- <div class="contact-item">
+                            <span class="contact-icon">📱</span>
+                            <div>
+                                <strong>GitHub</strong>
+                                <p><a href="https://github.com/yourproject" target="_blank">github.com/yourproject</a></p>
+                            </div>
+                        </div> -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- <div class="readme-footer" style="justify-content: flex-start;">
+                <button class="btn-readme-primary" id="close-contact-btn">Đóng</button>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="search-form.js"></script>
+    <script src="script.js"></script>
+    <script>
+        feather.replace();
+    </script>
+    
+
+
+    <script>
+    // README Modal Logic
+    (function() {
+        const modal = document.getElementById('readme-modal');
+        const icon = document.getElementById('readme-icon');
+        const closeBtn = document.getElementById('close-readme');
+        const gotItBtn = document.getElementById('got-it-btn');
+        const openBtn = document.getElementById('open-readme');
+        const dontShowCheckbox = document.getElementById('dont-show-checkbox');
+        const overlay = document.querySelector('.readme-overlay');
+
+        // Check if user has dismissed before (session-based)
+        const hasSeenReadme = sessionStorage.getItem('hasSeenReadme');
+
+        function showModal() {
+            modal.classList.add('show');
+            icon.style.display = 'none';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideModal() {
+            modal.classList.remove('show');
+            icon.style.display = 'block';
+            document.body.style.overflow = '';
+            
+            // If "don't show again" is checked, save to localStorage
+            if (dontShowCheckbox.checked) {
+                localStorage.setItem('hideReadme', 'true');
+            }
+            
+            // Mark as seen in this session
+            sessionStorage.setItem('hasSeenReadme', 'true');
+        }
+
+        // Show modal on first load (if not permanently hidden)
+        if (!hasSeenReadme && localStorage.getItem('hideReadme') !== 'true') {
+            setTimeout(showModal, 500); // Delay 500ms for better UX
+        } else {
+            icon.style.display = 'block';
+        }
+
+        // Event listeners
+        closeBtn.addEventListener('click', hideModal);
+        gotItBtn.addEventListener('click', hideModal);
+        overlay.addEventListener('click', hideModal);
+        openBtn.addEventListener('click', showModal);
+
+        // ESC key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('show')) {
+                hideModal();
+            }
+        });
+    })();
+
+    // Contact Modal Logic
+    (function() {
+        const contactModal = document.getElementById('contact-modal');
+        const contactIcon = document.getElementById('contact-icon');
+        const closeContactBtn = document.getElementById('close-contact');
+        const closeContactBtn2 = document.getElementById('close-contact-btn');
+        const openContactBtn = document.getElementById('open-contact');
+        const contactOverlay = contactModal.querySelector('.readme-overlay');
+
+        // Show contact icon when page loads
+        contactIcon.style.display = 'block';
+
+        function showContactModal() {
+            contactModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideContactModal() {
+            contactModal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        openContactBtn.addEventListener('click', showContactModal);
+        closeContactBtn.addEventListener('click', hideContactModal);
+        closeContactBtn2.addEventListener('click', hideContactModal);
+        contactOverlay.addEventListener('click', hideContactModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && contactModal.classList.contains('show')) {
+                hideContactModal();
+            }
+        });
+    })();
+
+    </script>
+
+    
+
+</body>
+</html>
