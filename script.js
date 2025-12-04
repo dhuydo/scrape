@@ -435,10 +435,14 @@ function matchQuery(text, parsedQuery) {
         });
     }
 
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://127.0.0.1:8001' 
+    : '';  // Production dùng relative URL
+
     // Load dữ liệu từ API
     Promise.all([
-        fetch('/api/df1').then(r => r.json()),
-        fetch('/api/df2').then(r => r.json())
+        fetch(`${API_BASE_URL}/api/df1`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/df2`).then(r => r.json())
     ]).then(([res1, res2]) => {
         df1 = res1.data || res1 || [];
         df2 = res2.data || res2 || [];
