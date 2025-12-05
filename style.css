@@ -136,7 +136,7 @@ body {
   flex-direction: column;
   gap: 24px;
   height: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 150px);
 }
 
 .data-section {
@@ -257,7 +257,7 @@ body {
 }
 
 .badge-green {
-  background: linear-gradient(135deg, var(--color-success) 0%, #63e6be 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
 }
 
 .badge-amber {
@@ -412,7 +412,7 @@ body {
   box-shadow: var(--shadow-md);
   padding: 24px;
   flex: 1 1 0;
-  min-height: 0;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -479,7 +479,7 @@ body {
   min-height: 0;
 }
 
-.chart-block {
+/* .chart-block {
   background: linear-gradient(135deg, rgba(108, 92, 231, 0.03) 0%, rgba(255, 107, 107, 0.02) 100%);
   border-radius: 16px;
   padding: 16px;
@@ -490,7 +490,7 @@ body {
   min-height: 0;
   overflow: hidden;
   transition: all 0.2s ease;
-}
+} */
 
 .chart-block:hover {
   box-shadow: var(--shadow-sm);
@@ -507,9 +507,10 @@ body {
 }
 
 .chart-block canvas {
-  flex: 1;
+  flex: 1 1 auto;
   max-height: 100% !important;
   width: 100% !important;
+  min-height: 280px !important; /* Đảm bảo chiều cao tối thiểu */
 }
 
 .chart-block canvas.hidden {
@@ -1049,3 +1050,207 @@ body {
     color: #495057;
 }
 
+/* ========== TABS ========== */
+.tabs-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 16px;
+}
+
+.tabs-nav {
+    display: flex;
+    gap: 8px;
+    background: var(--color-surface);
+    padding: 6px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.tab-btn i {
+    width: 18px;
+    height: 18px;
+}
+
+.tab-btn:hover {
+    background: rgba(108, 92, 231, 0.08);
+    color: var(--color-primary);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Export Button */
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--color-success) 0%, #33ab87 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(81, 207, 102, 0.3);
+    font-family: inherit;
+}
+
+.btn-export i {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(81, 207, 102, 0.4);
+}
+
+.btn-export:active {
+    transform: translateY(0);
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+    min-height: calc(100vh - 200px); /* Đảm bảo đủ cao */
+}
+
+.tab-content.active {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Data Section Vertical (cho tab 1) */
+.data-section-vertical {
+    width: 100%;
+    flex: 1 1 0; /* Chia đều không gian */
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.data-section-vertical .data-card {
+    height: 100%;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.data-section-vertical .table-wrapper {
+    padding: 0 20px 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.data-section-vertical .table-scroll {
+    width: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background: white;
+}
+
+/* Charts Grid 4 columns */
+.charts-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    flex: 1 1 auto;
+    min-height: 500px; /* THÊM chiều cao tối thiểu */
+    height: 100%;
+}
+
+@media (max-width: 1200px) {
+    .charts-grid-4 {
+        grid-template-columns: 1fr;
+    }
+    .chart-block {
+        min-height: 350px;
+    }
+}
+
+.chart-block {
+    background: var(--color-surface);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 380px; /* THÊM chiều cao tối thiểu cho mỗi chart */
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-block:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* .chart-block h3 {
+    margin: 0 0 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+} */
+
+/* .chart-block canvas {
+    max-height: 280px !important;
+    width: 100% !important;
+    flex: 1;
+} */
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .tabs-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .tabs-nav {
+        width: 100%;
+    }
+    
+    .tab-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .btn-export {
+        width: 100%;
+        justify-content: center;
+    }
+}

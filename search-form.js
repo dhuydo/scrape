@@ -360,6 +360,38 @@ class CustomSearchForm extends HTMLElement {
                             <input id="filter-date-to" type="date">
                         </div>
                     </div>
+
+                    <p class="section-label">Thông tin thầu</p>
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="filter-investor">Chủ đầu tư</label>
+                            <input id="filter-investor" type="text" placeholder="Tên cơ sở KCB">
+                        </div>
+                        <div class="field">
+                            <label for="filter-selection-method">Hình thức lựa chọn nhà thầu</label>
+                            <select id="filter-selection-method">
+                                <option value="">-- Chọn hình thức --</option>
+                                <option value="Đấu thầu rộng rãi">Đấu thầu rộng rãi</option>
+                                <option value="Đấu thầu hạn chế">Đấu thầu hạn chế</option>
+                                <option value="Chỉ định thầu">Chỉ định thầu</option>
+                                <option value="Chào hàng cạnh tranh">Chào hàng cạnh tranh</option>
+                                <option value="Mua sắm trực tiếp">Mua sắm trực tiếp</option>
+                                <option value="Tự thực hiện">Tự thực hiện</option>
+                                <option value="Tham gia thực hiện của cộng đồng">Tham gia thực hiện của cộng đồng</option>
+                                <option value="Đàm phán giá">Đàm phán giá</option>
+                                <option value="Lựa chọn nhà thầu trong trường hợp đặc biệt">Lựa chọn nhà thầu trong trường hợp đặc biệt</option>
+                                <option value="Đặt hàng">Đặt hàng</option>
+                                <option value="Chào giá trực tuyến">Chào giá trực tuyến</option>
+                                <option value="Chào giá trực tuyến theo quy trình rút gọn">Chào giá trực tuyến theo quy trình rút gọn</option>
+                                <option value="Mua sắm trực tuyến">Mua sắm trực tuyến</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="filter-approval-decision">Số quyết định phê duyệt</label>
+                            <input id="filter-approval-decision" type="text" placeholder="VD: 01/QĐ-TTYT">
+                        </div>
+                    </div>
+
                     <p class="section-label">Thông tin hàng hóa</p>
                     <div class="filters-grid">
                         <div class="field">
@@ -524,8 +556,16 @@ class CustomSearchForm extends HTMLElement {
         // Apply filters button
         root.getElementById('apply-filters-btn').addEventListener('click', () => {
             const payload = {
+                // Thông tin thời gian
                 dateFrom: root.getElementById('filter-date-from').value,
                 dateTo: root.getElementById('filter-date-to').value,
+
+                // Thông tin thầu
+                investor: root.getElementById('filter-investor').value.trim(),
+                selectionMethod: root.getElementById('filter-selection-method').value.trim(),
+                approvalDecision: root.getElementById('filter-approval-decision').value.trim(),
+
+                // Thông tin hàng hóa
                 drugName: root.getElementById('filter-drug-name').value.trim(),
                 activeIngredient: root.getElementById('filter-active-ingredient').value.trim(),
                 concentration: root.getElementById('filter-concentration').value.trim(),
@@ -534,6 +574,8 @@ class CustomSearchForm extends HTMLElement {
                 specification: root.getElementById('filter-specification').value.trim(),
                 drugGroup: root.getElementById('filter-drug-group').value.trim(),
                 regNo: root.getElementById('filter-reg-no').value.trim(),
+
+                // Thông tin nhà sản xuất
                 manufacturer: root.getElementById('filter-manufacturer').value.trim(),
                 country: root.getElementById('filter-country').value.trim()
             };
@@ -546,8 +588,16 @@ class CustomSearchForm extends HTMLElement {
 
         // Reset button
         root.getElementById('reset-filters-btn').addEventListener('click', () => {
+            // Reset thông tin thời gian
             root.getElementById('filter-date-from').value = '';
             root.getElementById('filter-date-to').value = '';
+
+            // Reset thông tin thầu
+            root.getElementById('filter-investor').value = '';
+            root.getElementById('filter-selection-method').value = '';
+            root.getElementById('filter-approval-decision').value = '';
+    
+            // Reset thông tin hàng hóa
             root.getElementById('filter-drug-name').value = '';
             root.getElementById('filter-active-ingredient').value = '';
             root.getElementById('filter-concentration').value = '';
@@ -556,6 +606,8 @@ class CustomSearchForm extends HTMLElement {
             root.getElementById('filter-specification').value = '';
             root.getElementById('filter-drug-group').value = '';
             root.getElementById('filter-reg-no').value = '';
+
+            // Reset thông tin nhà sản xuất
             root.getElementById('filter-manufacturer').value = '';
             root.getElementById('filter-country').value = '';
 

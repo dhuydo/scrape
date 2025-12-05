@@ -27,12 +27,32 @@
                 </section>
             </aside>
 
-            <!-- CỘT PHẢI: 2 BẢNG + BIỂU ĐỒ -->
             <main class="main-content">
-                <!-- HAI BẢNG DỮ LIỆU - LUÔN SONG SONG -->
-                <section class="data-section" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; width: 100%; overflow: visible;">
-                    <!-- Bộ dữ liệu chuẩn - df1 (16 cột) -->
-                    <div class="data-card" style="min-width: 0; overflow: visible;">
+            <!-- TABS NAVIGATION -->
+            <div class="tabs-container">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="data-tab">
+                        <i data-feather="database"></i>
+                        <span>Dữ liệu</span>
+                    </button>
+                    <button class="tab-btn" data-tab="charts-tab">
+                        <i data-feather="bar-chart-2"></i>
+                        <span>Biểu đồ thống kê</span>
+                    </button>
+                </div>
+                
+                <!-- Export Button -->
+                <button class="btn-export" id="export-excel-btn">
+                    <i data-feather="download"></i>
+                    <span>Xuất Excel</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: DATA TABLES -->
+            <div id="data-tab" class="tab-content active">
+                <!-- Bảng DF1 -->
+                <section class="data-section-vertical">
+                    <div class="data-card">
                         <div class="data-card-header">
                             <div>
                                 <h2 class="data-card-title">
@@ -41,13 +61,9 @@
                                     </span>
                                     Dữ liệu chuẩn hóa
                                 </h2>
-                                <p class="data-card-desc">
-                                    Dữ liệu chi tiết với đầy đủ các trường thông tin
-                                </p>
+                                <p class="data-card-desc">Dữ liệu chi tiết với đầy đủ các trường thông tin</p>
                             </div>
-                            <!-- <span class="data-badge badge-green">
-                                ✅
-                            </span> -->
+                            <span class="data-badge badge-green" id="df1-count">0</span>
                         </div>
                         <div class="table-wrapper">
                             <div class="table-scroll">
@@ -55,7 +71,10 @@
                                     <thead>
                                         <tr>
                                             <th>Mã TBMT</th>
+                                            <th>Chủ đầu tư</th>
+                                            <th>Số quyết định phê duyệt</th>
                                             <th>Ngày phê duyệt</th>
+                                            <th>Ngày hết hiệu lực</th>
                                             <th>Đơn vị tính</th>
                                             <th>Số lượng</th>
                                             <th>Đơn giá (VND)</th>
@@ -71,17 +90,19 @@
                                             <th>Cơ sở sản xuất</th>
                                             <th>Xuất xứ</th>
                                             <th>Nhà thầu</th>
+                                            <th>Hình thức lựa chọn nhà thầu</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="standard-data">
-                                    </tbody>
+                                    <tbody id="standard-data"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <!-- Bộ dữ liệu mở rộng - df2 (11 cột, không có search) -->
-                    <div class="data-card" style="min-width: 0; overflow: visible;">
+                <!-- Bảng DF2 -->
+                <section class="data-section-vertical">
+                    <div class="data-card">
                         <div class="data-card-header">
                             <div>
                                 <h2 class="data-card-title">
@@ -90,13 +111,9 @@
                                     </span>
                                     Dữ liệu tổng hợp
                                 </h2>
-                                <p class="data-card-desc">
-                                    Dữ liệu gộp từ nhiều nguồn
-                                </p>
+                                <p class="data-card-desc">Dữ liệu gộp từ nhiều nguồn</p>
                             </div>
-                            <!-- <span class="data-badge badge-amber">
-                                ⚠️
-                            </span> -->
+                            <span class="data-badge badge-amber" id="df2-count">0</span>
                         </div>
                         <div class="table-wrapper">
                             <div class="table-scroll">
@@ -104,7 +121,10 @@
                                     <thead>
                                         <tr>
                                             <th>Mã TBMT</th>
+                                            <th>Chủ đầu tư</th>
+                                            <th>Số quyết định phê duyệt</th>
                                             <th>Ngày phê duyệt</th>
+                                            <th>Ngày hết hiệu lực</th>
                                             <th>Đơn vị tính</th>
                                             <th>Khối lượng</th>
                                             <th>Đơn giá (VND)</th>
@@ -116,46 +136,64 @@
                                             <th>Xuất xứ</th>
                                             <th>Hãng sản xuất</th>
                                             <th>Nhà thầu</th>
+                                            <th>Hình thức lựa chọn nhà thầu</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="extended-data">
-                                    </tbody>
+                                    <tbody id="extended-data"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </section>
+            </div>
 
-                <!-- BIỂU ĐỒ -->
+            <!-- TAB 2: CHARTS -->
+            <div id="charts-tab" class="tab-content">
                 <section class="charts-section">
                     <div class="charts-header">
                         <div>
                             <h2 class="charts-title">
                                 <i data-feather="activity" class="icon-main green"></i>
-                                Thống kê
+                                Thống kê & Phân tích
                             </h2>
-                            <p class="charts-subtitle">
-                                Tổng hợp theo các tiêu chí đã lọc.
-                            </p>
+                            <p class="charts-subtitle">Tổng hợp theo các tiêu chí đã lọc.</p>
                         </div>
                     </div>
-                    <div class="charts-grid">
+                    
+                    <div class="charts-grid-4">
+                        <!-- Chart 1: Price Histogram -->
                         <div class="chart-block">
-                            <h3>Phân bổ giá thuốc</h3>
+                            <h3>Phân bố đơn giá</h3>
                             <canvas id="chart-price-histogram"></canvas>
                         </div>
+                        
+                        <!-- Chart 2: Price Boxplot -->
+                        <div class="chart-block">
+                            <h3>Boxplot đơn giá</h3>
+                            <canvas id="chart-price-boxplot"></canvas>
+                        </div>
+                        
+                        <!-- Chart 3: Timeline Value -->
                         <div class="chart-block">
                             <h3>Tổng giá trị trúng thầu theo tháng</h3>
                             <canvas id="chart-timeline-value"></canvas>
                         </div>
+                        
+                        <!-- Chart 4: Value by Selection Method -->
+                        <div class="chart-block">
+                            <h3>Tổng giá trị trúng thầu theo hình thức LCNT</h3>
+                            <canvas id="chart-selection-method"></canvas>
+                        </div>
                     </div>
                 </section>
-            </main>
+            </div>
+        </main>
+
         </div>
 
         <!-- FOOTER -->
         <footer class="app-footer">
-            © 2025 Hệ thống tra cứu thuốc trúng thầu
+            © 2025 Hệ thống tra cứu Thuốc trúng thầu
         </footer>
     </div>
 
@@ -198,7 +236,7 @@
                         <div class="readme-info-card">
                             <div class="info-icon">📋</div>
                             <h3>Thông tin thầu</h3>
-                            <p>Mã TBMT, chủ đầu tư, tên gói thầu, đấu thầu qua mạng, giá gói thầu, ngày phê duyệt, số quyết định phê duyệt, hình thức lựa chọn nhà thầu, phương thức lựa chọn nhà thầu</p>
+                            <p>Mã TBMT, chủ đầu tư, tên gói thầu, thời gian thực hiện gói thầu, đấu thầu qua mạng, giá gói thầu, ngày phê duyệt, số quyết định phê duyệt, hình thức lựa chọn nhà thầu, phương thức lựa chọn nhà thầu</p>
                         </div>
                     </div>
                 </section>
@@ -332,14 +370,14 @@
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.2.5/build/index.umd.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="search-form.js"></script>
     <script src="script.js"></script>
     <script>
         feather.replace();
     </script>
     
-
-
     <script>
     // README Modal Logic
     (function() {

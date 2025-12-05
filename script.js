@@ -6,13 +6,83 @@ document.addEventListener('DOMContentLoaded', function() {
     let df1 = [];  // Bộ dữ liệu chuẩn
     let df2 = [];  // Bộ dữ liệu mở rộng
 
+    // BIẾN LƯU FILTERED DATA
+    let currentFilteredDf1 = [];
+    let currentFilteredDf2 = [];
+
     // BIẾN LƯU CHART
     let chartPriceHistogram = null;
     let chartTimelineValue = null;
+    let chartPriceBoxplot = null;      
+    let chartSelectionMethod = null;    
 
     const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://127.0.0.1:8001' 
     : window.location.origin;
+
+    // ========== TAB SWITCHING - CẬP NHẬT ==========
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const exportBtn = document.getElementById('export-excel-btn'); // THÊM
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove active class from all
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active to clicked
+            btn.classList.add('active');
+            const tabId = btn.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+            
+            // THÊM: Ẩn/hiện nút export theo tab
+            if (tabId === 'data-tab') {
+                exportBtn.style.display = 'flex'; // Hiện khi ở tab Dữ liệu
+            } else {
+                exportBtn.style.display = 'none'; // Ẩn khi ở tab Biểu đồ
+            }
+            
+            // Re-render charts when switching to charts tab
+            if (tabId === 'charts-tab') {
+                drawCharts(currentFilteredDf1, currentFilteredDf2);
+            }
+        });
+    });
+
+
+    // ========== EXPORT TO EXCEL - THÊM MỚI ==========
+    document.getElementById('export-excel-btn').addEventListener('click', () => {
+        if (currentFilteredDf1.length === 0 && currentFilteredDf2.length === 0) {
+            alert('Không có dữ liệu để xuất!');
+            return;
+        }
+        
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+        
+        // Add DF1 sheet
+        if (currentFilteredDf1.length > 0) {
+            const ws1 = XLSX.utils.json_to_sheet(currentFilteredDf1);
+            XLSX.utils.book_append_sheet(wb, ws1, "Dữ liệu chuẩn hóa");
+        }
+        
+        // Add DF2 sheet
+        if (currentFilteredDf2.length > 0) {
+            const ws2 = XLSX.utils.json_to_sheet(currentFilteredDf2);
+            XLSX.utils.book_append_sheet(wb, ws2, "Dữ liệu tổng hợp");
+        }
+        
+        // Generate filename with timestamp
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+        const filename = `DuLieuTrungThau_${timestamp}.xlsx`;
+        
+        // Download
+        XLSX.writeFile(wb, filename);
+        
+        console.log(`✅ Exported ${currentFilteredDf1.length + currentFilteredDf2.length} records to ${filename}`);
+    });
 
     // ============ RENDER DF1 - 16 CỘT ============
     function renderStandardData(data) {
@@ -26,7 +96,10 @@ document.addEventListener('DOMContentLoaded', function() {
             tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
             tr.innerHTML = `
                 <td class="px-4 py-2">${item['ma_TBMT'] || ''}</td>
+                <td class="px-4 py-2">${item['Chủ đầu tư'] || ''}</td>
+                <td class="px-4 py-2">${item['Số quyết định phê duyệt'] || ''}</td>
                 <td class="px-4 py-2">${formatDate(item['Ngày phê duyệt'])}</td>
+                <td class="px-4 py-2">${formatDate(item['Ngày hết hiệu lực'])}</td>
                 <td class="px-4 py-2">${item['Đơn vị tính'] || ''}</td>
                 <td class="px-4 py-2 text-right">${formatNumber(item['Số lượng'])}</td>
                 <td class="px-4 py-2 text-right">${formatCurrency(item['Đơn giá trúng thầu (VND)'])}</td>
@@ -42,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="px-4 py-2">${item['Cơ sở sản xuất'] || ''}</td>
                 <td class="px-4 py-2">${item['Xuất xứ'] || ''}</td>
                 <td class="px-4 py-2">${item['Nhà thầu trúng thầu'] || ''}</td>
+                <td class="px-4 py-2">${item['Hình thức lựa chọn nhà thầu'] || ''}</td>
             `;
             standardTbody.appendChild(tr);
         });
@@ -59,7 +133,10 @@ document.addEventListener('DOMContentLoaded', function() {
             tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
             tr.innerHTML = `
                 <td class="px-4 py-2">${item['ma_TBMT'] || ''}</td>
+                <td class="px-4 py-2">${item['Chủ đầu tư'] || ''}</td>
+                <td class="px-4 py-2">${item['Số quyết định phê duyệt'] || ''}</td>
                 <td class="px-4 py-2">${formatDate(item['Ngày phê duyệt'])}</td>
+                <td class="px-4 py-2">${formatDate(item['Ngày hết hiệu lực'])}</td>
                 <td class="px-4 py-2">${item['Đơn vị tính'] || ''}</td>
                 <td class="px-4 py-2 text-right">${formatNumber(item['Khối lượng'])}</td>
                 <td class="px-4 py-2 text-right">${formatCurrency(item['Đơn giá trúng thầu (VND)'])}</td>
@@ -70,7 +147,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="px-4 py-2">${item['Cấu hình, tính năng kỹ thuật cơ bản'] || ''}</td>
                 <td class="px-4 py-2">${item['Xuất xứ'] || ''}</td>
                 <td class="px-4 py-2">${item['Hãng sản xuất'] || ''}</td>
-                <td class="px-4 py-2">${item['Nhà thầu trúng thầu'] || ''}</td>               
+                <td class="px-4 py-2">${item['Nhà thầu trúng thầu'] || ''}</td>   
+                <td class="px-4 py-2">${item['Hình thức lựa chọn nhà thầu'] || ''}</td>            
             `;
             extendedTbody.appendChild(tr);
         });
@@ -223,8 +301,14 @@ function matchQuery(text, parsedQuery) {
         let filteredDf1 = df1.slice();
         let filteredDf2 = df2.slice();
 
+        currentFilteredDf1 = filteredDf1;
+        currentFilteredDf2 = filteredDf2;
+
         // Parse các query với syntax đặc biệt
         const parsedQueries = {
+            investor: parseSearchQuery(payload.investor),
+            selectionMethod: parseSearchQuery(payload.selectionMethod),
+            approvalDecision: parseSearchQuery(payload.approvalDecision),
             drugName: parseSearchQuery(payload.drugName),
             activeIngredient: parseSearchQuery(payload.activeIngredient),
             concentration: parseSearchQuery(payload.concentration),
@@ -237,29 +321,20 @@ function matchQuery(text, parsedQuery) {
             country: parseSearchQuery(payload.country)
         };
 
-        // DF1: Lọc theo TỪNG CỘT TƯƠNG ỨNG
-        // if (payload.dateFrom || payload.dateTo) {
-        //     const fromDate = payload.dateFrom ? new Date(payload.dateFrom) : null;
-        //     const toDate = payload.dateTo ? new Date(payload.dateTo) : null;
-            
-        //     // Set time to end of day for toDate to include the whole day
-        //     if (toDate) {
-        //         toDate.setHours(23, 59, 59, 999);
-        //     }
+        if (parsedQueries.investor) {
+            filteredDf1 = filteredDf1.filter(d => 
+                matchQuery(d['Chủ đầu tư'], parsedQueries.investor)
+            );
+        }
 
-        //     filteredDf1 = filteredDf1.filter(d => {
-        //         const itemDate = d['Ngày phê duyệt'];
-        //         if (!itemDate) return false; // Bỏ qua dòng không có ngày
-                
-        //         const date = new Date(itemDate);
-        //         if (isNaN(date.getTime())) return false;
-                
-        //         if (fromDate && date < fromDate) return false;
-        //         if (toDate && date > toDate) return false;
-                
-        //         return true;
-        //     });
-        // }
+        if (parsedQueries.selectionMethod && payload.selectionMethod) 
+            filteredDf1 = filteredDf1.filter(d => d['Hình thức lựa chọn nhà thầu'] === payload.selectionMethod);
+
+        if (parsedQueries.approvalDecision) {
+            filteredDf1 = filteredDf1.filter(d => 
+                matchQuery(d['Số quyết định phê duyệt'], parsedQueries.approvalDecision)
+            );
+        }
 
         if (parsedQueries.drugName) {
             filteredDf1 = filteredDf1.filter(d => 
@@ -325,6 +400,10 @@ function matchQuery(text, parsedQuery) {
         filteredDf2 = filteredDf2.filter(d => {
             const searchText = d['search'] || '';
             
+            if (!matchQuery(searchText, parsedQueries.investor)) return false;
+            if (!matchQuery(searchText, parsedQueries.approvalDecision)) return false;
+            if (payload.selectionMethod && !searchText.includes(payload.selectionMethod)) return false;
+
             if (!matchQuery(searchText, parsedQueries.drugName)) return false;
             if (!matchQuery(searchText, parsedQueries.activeIngredient)) return false;
             if (!matchQuery(searchText, parsedQueries.concentration)) return false;
@@ -404,6 +483,14 @@ function matchQuery(text, parsedQuery) {
         filteredDf1 = sortByDate(filteredDf1);
         filteredDf2 = sortByDate(filteredDf2);
         
+        // SAVE to global variables for export
+        currentFilteredDf1 = filteredDf1;
+        currentFilteredDf2 = filteredDf2;
+
+        // Update counts
+        document.getElementById('df1-count').textContent = filteredDf1.length;
+        document.getElementById('df2-count').textContent = filteredDf2.length;
+
         // LUÔN render cả 2 bảng
         renderStandardData(filteredDf1);
         renderExtendedData(filteredDf2);
@@ -500,6 +587,9 @@ function initEmptyCharts() {
 function destroyCharts() {
     if (chartPriceHistogram) { chartPriceHistogram.destroy(); chartPriceHistogram = null; }
     if (chartTimelineValue) { chartTimelineValue.destroy(); chartTimelineValue = null; }
+    if (chartPriceBoxplot) { chartPriceBoxplot.destroy(); chartPriceBoxplot = null; }    
+    if (chartSelectionMethod) { chartSelectionMethod.destroy(); chartSelectionMethod = null; } 
+    
 }
 
 function drawCharts(df1Data, df2Data) {
@@ -509,14 +599,7 @@ function drawCharts(df1Data, df2Data) {
     destroyCharts();
 
     if (totalRecords === 0) {
-        // ['chart-price-histogram', 'chart-timeline-value'].forEach(id => {
-        //     const canvas = document.getElementById(id);
-        //     if (canvas && canvas.parentElement) {
-        //         canvas.parentElement.innerHTML = `<p style="font-size:11px;color:#94a3b8;padding:20px;text-align:center;line-height:1.6;">${noDataMsg}</p>`;
-        //     }
-        // });
-
-        ['chart-price-histogram', 'chart-timeline-value'].forEach(id => {
+        ['chart-price-histogram', 'chart-price-boxplot', 'chart-timeline-value', 'chart-selection-method'].forEach(id => {
             const canvas = document.getElementById(id);
             if (canvas) {
                 canvas.classList.add('hidden');
@@ -536,22 +619,18 @@ function drawCharts(df1Data, df2Data) {
 
     const all = [...df1Data, ...df2Data];
 
-    // ============ 1. HISTOGRAM GIÁ THUỐC ============
-    // Lấy tất cả giá (mỗi giá là 1 bar riêng)
+    // ============ 1. HISTOGRAM GIÁ ============
     const priceMap = {};
     all.forEach(r => {
         const price = Number(r['Đơn giá trúng thầu (VND)']);
         if (!isNaN(price) && price > 0) {
-           if (!priceMap[price]) {
+            if (!priceMap[price]) {
                 priceMap[price] = 0;
-                } 
+            }
             priceMap[price]++;
         }
     });
 
-    console.log('📊 Price histogram data:', priceMap);
-
-    // Sort theo giá tăng dần
     const sortedPrices = Object.entries(priceMap)
         .map(([priceNum, count]) => ({
             price: Number(priceNum),
@@ -562,15 +641,10 @@ function drawCharts(df1Data, df2Data) {
     const priceLabels = sortedPrices.map(x => x.price.toLocaleString('vi-VN'));
     const priceCounts = sortedPrices.map(x => x.count);
 
-    console.log('📊 Chart labels:', priceLabels);
-    console.log('📊 Chart counts:', priceCounts);
-
     const ctxPriceCanvas = document.getElementById('chart-price-histogram');
     if (ctxPriceCanvas && priceLabels.length > 0) {
         const msg = ctxPriceCanvas.parentElement.querySelector('.no-data-msg');
-        if (msg) {
-            msg.classList.remove('visible');
-        }
+        if (msg) msg.classList.remove('visible');
         ctxPriceCanvas.classList.remove('hidden');
 
         const ctxPrice = ctxPriceCanvas.getContext('2d');
@@ -581,8 +655,8 @@ function drawCharts(df1Data, df2Data) {
                 datasets: [{
                     label: 'Số lượng bản ghi',
                     data: priceCounts,
-                    backgroundColor: '#5f3dc4',
-                    borderRadius: 4
+                    backgroundColor: '#6C5CE7',
+                    borderRadius: 6
                 }]
             },
             options: {
@@ -603,25 +677,103 @@ function drawCharts(df1Data, df2Data) {
                             autoSkip: true,
                             maxRotation: 45,
                             minRotation: 45,
-                            font: { size: 10 }
+                            font: { size: 12 }
                         }
                     },
                     y: {
                         beginAtZero: true,
                         ticks: {
                             stepSize: 1,
-                            font: { size: 10 }
+                            font: { size: 12 }
                         }
                     }
+                },
+                layout: {
+                    padding: { top: 10, bottom: 10 }
                 }
             }
         });
-    } else {
-    console.warn('⚠️ Cannot draw price histogram - canvas:', ctxPriceCanvas, 'data length:', priceLabels.length);
     }
 
-    // ============ 2. TRỊ GIÁ THEO THỜI GIAN ============
-    // Group theo tháng (từ cột "Ngày phê duyệt")
+    // ============ 2. BOXPLOT CHUẨN ============
+    const prices = all
+        .map(r => Number(r['Đơn giá trúng thầu (VND)']))
+        .filter(p => !isNaN(p) && p > 0);
+
+    const ctxBoxplotCanvas = document.getElementById('chart-price-boxplot');
+    if (ctxBoxplotCanvas && prices.length > 0) {
+        const msg = ctxBoxplotCanvas.parentElement.querySelector('.no-data-msg');
+        if (msg) msg.classList.remove('visible');
+        ctxBoxplotCanvas.classList.remove('hidden');
+
+        const ctxBoxplot = ctxBoxplotCanvas.getContext('2d');
+        chartPriceBoxplot = new Chart(ctxBoxplot, {
+            type: 'boxplot',
+            data: {
+                labels: ['Đơn giá'],
+                datasets: [{
+                    label: 'Phân bố giá',
+                    data: [prices],
+                    backgroundColor: 'rgba(108, 92, 231, 0.2)', // ĐỔI: cam → tím
+                    borderColor: '#6C5CE7', // ĐỔI: #FF6B6B → #6C5CE7
+                    borderWidth: 2,
+                    outlierBackgroundColor: '#5f3dc4', // ĐỔI: #fa5252 → tím đậm
+                    outlierBorderColor: '#5f3dc4', // ĐỔI: #fa5252 → tím đậm
+                    itemRadius: 0,
+                    outlierRadius: 3,
+                    medianColor: '#7c6eea' // ĐỔI: #c92a2a → tím sáng
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.parsed;
+                                if (value.min !== undefined) {
+                                    return [
+                                        `Max: ${value.max.toLocaleString('vi-VN')} VND`,
+                                        `Q3: ${value.q3.toLocaleString('vi-VN')} VND`,
+                                        `Median: ${value.median.toLocaleString('vi-VN')} VND`,
+                                        `Q1: ${value.q1.toLocaleString('vi-VN')} VND`,
+                                        `Min: ${value.min.toLocaleString('vi-VN')} VND`
+                                    ];
+                                }
+                                return `${value.toLocaleString('vi-VN')} VND`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => {
+                                if (value >= 1_000_000) {
+                                    return (value / 1_000_000).toFixed(0) + ' tr';
+                                }
+                                return value.toLocaleString('vi-VN');
+                            },
+                            font: { size: 12 }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { size: 12 }
+                        }
+                    }
+                },
+                layout: {
+                    padding: { top: 10, bottom: 10 }
+                }
+            }
+        });
+    }
+
+    // ============ 3. TRỊ GIÁ THEO THỜI GIAN - TÍM ============
     const monthlyValue = {};
     
     all.forEach(r => {
@@ -630,19 +782,17 @@ function drawCharts(df1Data, df2Data) {
         
         if (!dateStr || value === 0) return;
         
-        // Parse date - giả sử format: dd/mm/yyyy hoặc yyyy-mm-dd
         let monthKey;
         try {
             let dateObj;
             if (dateStr.includes('/')) {
                 const parts = dateStr.split('/');
                 if (parts.length === 3) {
-                    // dd/mm/yyyy
                     dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
                 }
             } else if (dateStr.includes('-')) {
                 dateObj = new Date(dateStr);
-            }  else if (dateStr instanceof Date) {
+            } else if (dateStr instanceof Date) {
                 dateObj = dateStr;
             }
             
@@ -658,9 +808,6 @@ function drawCharts(df1Data, df2Data) {
         }
     });
 
-    console.log('📈 Timeline data:', monthlyValue);
-
-    // Sort theo thời gian
     const sortedMonths = Object.entries(monthlyValue)
         .sort((a, b) => a[0].localeCompare(b[0]));
 
@@ -673,9 +820,7 @@ function drawCharts(df1Data, df2Data) {
     const ctxTimelineCanvas = document.getElementById('chart-timeline-value');
     if (ctxTimelineCanvas && monthLabels.length > 0) {
         const msg = ctxTimelineCanvas.parentElement.querySelector('.no-data-msg');
-        if (msg) {
-            msg.classList.remove('visible');
-        }
+        if (msg) msg.classList.remove('visible');
         ctxTimelineCanvas.classList.remove('hidden');
     
         const ctxTimeline = ctxTimelineCanvas.getContext('2d');
@@ -686,13 +831,15 @@ function drawCharts(df1Data, df2Data) {
                 datasets: [{
                     label: 'Tổng trị giá (VND)',
                     data: monthValues,
-                    backgroundColor: '#ffddddff',
-                    borderColor: '#fa5252',
-                    borderWidth: 2,
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)', // ĐỔI: tím → cam
+                    borderColor: '#FF6B6B', // ĐỔI: #6C5CE7 → #FF6B6B
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#fa5252'
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#FF6B6B', // ĐỔI: tím → cam
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
                 }]
             },
             options: {
@@ -714,7 +861,7 @@ function drawCharts(df1Data, df2Data) {
                         ticks: {
                             maxRotation: 45,
                             minRotation: 45,
-                            font: { size: 10 }
+                            font: { size: 12 }
                         }
                     },
                     y: {
@@ -722,21 +869,125 @@ function drawCharts(df1Data, df2Data) {
                         ticks: {
                             callback: (value) => {
                                 if (value >= 1_000_000_000) {
-                                    return (value / 1_000_000_000).toFixed(1) + 'B';
+                                    return (value / 1_000_000_000).toFixed(1) + ' tỷ';
                                 } else if (value >= 1_000_000) {
-                                    return (value / 1_000_000).toFixed(1) + 'M';
+                                    return (value / 1_000_000).toFixed(1) + ' tr';
                                 }
                                 return value.toLocaleString('vi-VN');
                             },
-                            font: { size: 10 }
+                            font: { size: 12 }
                         }
                     }
+                },
+                layout: {
+                    padding: { top: 10, bottom: 10 }
                 }
             }
         });
-    } else if (ctxTimelineCanvas) {
-        // Nếu không có dữ liệu ngày tháng
-        ctxTimelineCanvas.parentElement.innerHTML = '<p style="font-size:11px;color:#94a3b8;padding:20px;text-align:center;">Không có dữ liệu ngày phê duyệt</p>';
+    }
+
+    // ============ 4. THÀNH TIỀN THEO HÌNH THỨC - CAM ============
+    const methodMap = {};
+
+    all.forEach(r => {
+        const method = r['Hình thức lựa chọn nhà thầu'] || 'Không xác định';
+        const value = Number(r['Thành tiền (VND)']) || 0;
+        
+        if (value > 0) {
+            if (!methodMap[method]) methodMap[method] = 0;
+            methodMap[method] += value;
+        }
+    });
+
+    const sortedMethods = Object.entries(methodMap)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+    const methodLabels = sortedMethods.map(x => {
+        const label = x[0];
+        return label.length > 25 ? label.substring(0, 25) + '...' : label;
+    });
+    const methodValues = sortedMethods.map(x => x[1]);
+
+    const ctxMethodCanvas = document.getElementById('chart-selection-method');
+    if (ctxMethodCanvas && methodLabels.length > 0) {
+        const msg = ctxMethodCanvas.parentElement.querySelector('.no-data-msg');
+        if (msg) msg.classList.remove('visible');
+        ctxMethodCanvas.classList.remove('hidden');
+
+        const ctxMethod = ctxMethodCanvas.getContext('2d');
+        chartSelectionMethod = new Chart(ctxMethod, {
+            type: 'bar',
+            data: {
+                labels: methodLabels,
+                datasets: [{
+                    label: 'Tổng thành tiền',
+                    data: methodValues,
+                    backgroundColor: [
+                        '#FF6B6B',
+                        '#FF8787',
+                        '#FFA3A3',
+                        '#FFBFBF',
+                        '#FF6B6B',
+                        '#FF8787',
+                        '#FFA3A3',
+                        '#FFBFBF'
+                    ],
+                    borderRadius: 8,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'x',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (item) => {
+                                const value = Number(item.raw);
+                                if (value >= 1_000_000_000) {
+                                    return `${(value / 1_000_000_000).toFixed(2)} tỷ VND`;
+                                }
+                                if (value >= 1_000_000) {
+                                    return `${(value / 1_000_000).toFixed(2)} triệu VND`;
+                                }
+                                return value.toLocaleString('vi-VN') + ' VND';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 45,
+                            font: { size: 11 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => {
+                                if (value >= 1_000_000_000) {
+                                    return (value / 1_000_000_000).toFixed(1) + ' tỷ';
+                                }
+                                if (value >= 1_000_000) {
+                                    return (value / 1_000_000).toFixed(0) + ' tr';
+                                }
+                                return value.toLocaleString('vi-VN');
+                            },
+                            font: { size: 12 }
+                        }
+                    }
+                },
+                layout: {
+                    padding: { top: 10, bottom: 10 }
+                }
+            }
+        });
     }
 }
 
