@@ -662,6 +662,11 @@ function drawCharts(df1Data, df2Data) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -839,12 +844,19 @@ function drawCharts(df1Data, df2Data) {
                     pointRadius: 5,
                     pointBackgroundColor: '#FF6B6B', // ĐỔI: tím → cam
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7, // THÊM: Tăng kích thước khi hover
+                    pointHitRadius: 20 // THÊM: Tăng vùng nhận diện hover
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -940,7 +952,12 @@ function drawCharts(df1Data, df2Data) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                indexAxis: 'x',
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
+                // indexAxis: 'x',
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -975,7 +992,7 @@ function drawCharts(df1Data, df2Data) {
                                     return (value / 1_000_000_000).toFixed(1) + ' tỷ';
                                 }
                                 if (value >= 1_000_000) {
-                                    return (value / 1_000_000).toFixed(0) + ' tr';
+                                    return (value / 1_000_000).toFixed(0) + ' triệu';
                                 }
                                 return value.toLocaleString('vi-VN');
                             },
