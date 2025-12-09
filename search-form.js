@@ -136,11 +136,11 @@ class CustomSearchForm extends HTMLElement {
                     box-shadow: 0 4px 16px rgba(108, 92, 231, 0.4);
                 }
                 .btn-primary:hover {
-                    transform: translateY(-2px);
+                    // transform: translateY(-2px);
                     box-shadow: 0 8px 32px rgba(108, 92, 231, 0.5);
                 }
                 .btn-primary:active {
-                    transform: translateY(0);
+                    // transform: translateY(0);
                 }
                 .btn-secondary {
                     background: #ffffff;
@@ -151,7 +151,7 @@ class CustomSearchForm extends HTMLElement {
                 .btn-secondary:hover {
                     border-color: #6C5CE7;
                     background: rgba(108, 92, 231, 0.04);
-                    transform: translateY(-1px);
+                    // transform: translateY(-1px);
                 }
                 @media (max-width: 768px) {
                     .search-form {
@@ -208,7 +208,7 @@ class CustomSearchForm extends HTMLElement {
                     position: absolute;
                     top: calc(100% + 8px);
                     left: 50%;
-                    transform: translateX(-50%);
+                    // transform: translateX(-50%);
                     z-index: 1000;
                     background: #ffffff;
                     border-radius: 12px;
@@ -230,7 +230,7 @@ class CustomSearchForm extends HTMLElement {
                     position: absolute;
                     bottom: 100%;
                     left: 50%;
-                    transform: translateX(-50%);
+                    // transform: translateX(-50%);
                     border: 6px solid transparent;
                     border-bottom-color: #ffffff;
                 }
@@ -389,6 +389,85 @@ class CustomSearchForm extends HTMLElement {
                         <div class="field">
                             <label for="filter-approval-decision">Số quyết định phê duyệt</label>
                             <input id="filter-approval-decision" type="text" placeholder="VD: 01/QĐ-TTYT">
+                        </div>
+                        <div class="field">
+                            <label for="filter-place">Tỉnh/Thành phố</label>
+                            <select id="filter-place">
+                                <option value="">-- Chọn tỉnh/thành phố --</option>
+
+                                <option value="Tỉnh An Giang">An Giang</option>
+                                <option value="Tỉnh Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                                <option value="Tỉnh Bắc Giang">Bắc Giang</option>
+                                <option value="Tỉnh Bắc Kạn">Bắc Kạn</option>
+                                <option value="Tỉnh Bạc Liêu">Bạc Liêu</option>
+                                <option value="Tỉnh Bắc Ninh">Bắc Ninh</option>
+                                <option value="Tỉnh Bến Tre">Bến Tre</option>
+                                <option value="Tỉnh Bình Định">Bình Định</option>
+                                <option value="Tỉnh Bình Dương">Bình Dương</option>
+                                <option value="Tỉnh Bình Phước">Bình Phước</option>
+                                <option value="Tỉnh Bình Thuận">Bình Thuận</option>
+                                <option value="Tỉnh Cà Mau">Cà Mau</option>
+                                <option value="Thành phố Cần Thơ">Cần Thơ</option>
+                                <option value="Tỉnh Cao Bằng">Cao Bằng</option>
+                                <option value="Thành phố Đà Nẵng">Đà Nẵng</option>
+                                <option value="Tỉnh Đắk Lắk">Đắk Lắk</option>
+                                <option value="Tỉnh Đắk Nông">Đắk Nông</option>
+                                <option value="Tỉnh Điện Biên">Điện Biên</option>
+                                <option value="Tỉnh Đồng Nai">Đồng Nai</option>
+                                <option value="Tỉnh Đồng Tháp">Đồng Tháp</option>
+                                <option value="Tỉnh Gia Lai">Gia Lai</option>
+                                <option value="Tỉnh Hà Giang">Hà Giang</option>
+                                <option value="Tỉnh Hà Nam">Hà Nam</option>
+                                <option value="Thành phố Hà Nội">Hà Nội</option>
+                                <option value="Tỉnh Hà Tĩnh">Hà Tĩnh</option>
+                                <option value="Tỉnh Hải Dương">Hải Dương</option>
+                                <option value="Thành phố Hải Phòng">Hải Phòng</option>
+                                <option value="Tỉnh Hậu Giang">Hậu Giang</option>
+                                <option value="Thành phố Hồ Chí Minh">Hồ Chí Minh</option>
+                                <option value="Tỉnh Hòa Bình">Hòa Bình</option>
+                                <option value="Tỉnh Hưng Yên">Hưng Yên</option>
+                                <option value="Tỉnh Khánh Hòa">Khánh Hòa</option>
+                                <option value="Tỉnh Kiên Giang">Kiên Giang</option>
+                                <option value="Tỉnh Kon Tum">Kon Tum</option>
+                                <option value="Tỉnh Lai Châu">Lai Châu</option>
+                                <option value="Tỉnh Lâm Đồng">Lâm Đồng</option>
+                                <option value="Tỉnh Lạng Sơn">Lạng Sơn</option>
+                                <option value="Tỉnh Lào Cai">Lào Cai</option>
+                                <option value="Tỉnh Long An">Long An</option>
+                                <option value="Tỉnh Nam Định">Nam Định</option>
+                                <option value="Tỉnh Nghệ An">Nghệ An</option>
+                                <option value="Tỉnh Ninh Bình">Ninh Bình</option>
+                                <option value="Tỉnh Ninh Thuận">Ninh Thuận</option>
+                                <option value="Tỉnh Phú Thọ">Phú Thọ</option>
+                                <option value="Tỉnh Phú Yên">Phú Yên</option>
+                                <option value="Tỉnh Quảng Bình">Quảng Bình</option>
+                                <option value="Tỉnh Quảng Nam">Quảng Nam</option>
+                                <option value="Tỉnh Quảng Ngãi">Quảng Ngãi</option>
+                                <option value="Tỉnh Quảng Ninh">Quảng Ninh</option>
+                                <option value="Tỉnh Quảng Trị">Quảng Trị</option>
+                                <option value="Tỉnh Sóc Trăng">Sóc Trăng</option>
+                                <option value="Tỉnh Sơn La">Sơn La</option>
+                                <option value="Tỉnh Tây Ninh">Tây Ninh</option>
+                                <option value="Tỉnh Thái Bình">Thái Bình</option>
+                                <option value="Tỉnh Thái Nguyên">Thái Nguyên</option>
+                                <option value="Tỉnh Thanh Hóa">Thanh Hóa</option>
+                                <option value="Tỉnh Thừa Thiên Huế">Thừa Thiên Huế</option>
+                                <option value="Tỉnh Tiền Giang">Tiền Giang</option>
+                                <option value="Tỉnh Trà Vinh">Trà Vinh</option>
+                                <option value="Tỉnh Tuyên Quang">Tuyên Quang</option>
+                                <option value="Tỉnh Vĩnh Long">Vĩnh Long</option>
+                                <option value="Tỉnh Vĩnh Phúc">Vĩnh Phúc</option>
+                                <option value="Tỉnh Yên Bái">Yên Bái</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="filter-validity">Tình trạng hiệu lực</label>
+                            <select id="filter-validity">
+                                <option value="">-- Còn/hết hiệu lực --</option>
+                                <option value="Còn hiệu lực">Còn hiệu lực</option>
+                                <option value="Hết hiệu lực">Hết hiệu lực</option>
+                            </select>
                         </div>
                     </div>
 
@@ -564,6 +643,8 @@ class CustomSearchForm extends HTMLElement {
                 investor: root.getElementById('filter-investor').value.trim(),
                 selectionMethod: root.getElementById('filter-selection-method').value.trim(),
                 approvalDecision: root.getElementById('filter-approval-decision').value.trim(),
+                place: root.getElementById('filter-place').value.trim(),
+                validity: root.getElementById('filter-validity').value.trim(),
 
                 // Thông tin hàng hóa
                 drugName: root.getElementById('filter-drug-name').value.trim(),
@@ -596,6 +677,8 @@ class CustomSearchForm extends HTMLElement {
             root.getElementById('filter-investor').value = '';
             root.getElementById('filter-selection-method').value = '';
             root.getElementById('filter-approval-decision').value = '';
+            root.getElementById('filter-place').value = '';
+            root.getElementById('filter-validity').value = '';
     
             // Reset thông tin hàng hóa
             root.getElementById('filter-drug-name').value = '';

@@ -28,25 +28,32 @@
             </aside>
 
             <main class="main-content">
+
             <!-- TABS NAVIGATION -->
             <div class="tabs-container">
-                <div class="tabs-nav">
-                    <button class="tab-btn active" data-tab="data-tab">
-                        <i data-feather="database"></i>
-                        <span>Dữ liệu</span>
-                    </button>
-                    <button class="tab-btn" data-tab="charts-tab">
-                        <i data-feather="bar-chart-2"></i>
-                        <span>Biểu đồ thống kê</span>
+                <div class="tabs-group">
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" data-tab="data-tab">
+                            <i data-feather="database"></i>
+                            <span>Dữ liệu</span>
+                        </button>
+                        <button class="tab-btn" data-tab="charts-tab">
+                            <i data-feather="bar-chart-2"></i>
+                            <span>Biểu đồ thống kê</span>
+                        </button>
+                    </div>
+                    
+                    <button class="btn-meta-simple" id="open-run-history" title="Lịch sử cập nhật dữ liệu">
+                        <i data-feather="refresh-ccw"></i>
                     </button>
                 </div>
                 
-                <!-- Export Button -->
                 <button class="btn-export" id="export-excel-btn">
                     <i data-feather="download"></i>
                     <span>Xuất Excel</span>
                 </button>
             </div>
+
 
             <!-- TAB 1: DATA TABLES -->
             <div id="data-tab" class="tab-content active">
@@ -67,7 +74,7 @@
                         </div>
                         <div class="table-wrapper">
                             <div class="table-scroll">
-                                <table class="data-table">
+                                <table class="data-table" id="standard-table">
                                     <thead>
                                         <tr>
                                             <th>Mã TBMT</th>
@@ -77,10 +84,10 @@
                                             <th>Ngày hết hiệu lực</th>
                                             <th>Đơn vị tính</th>
                                             <th>Số lượng</th>
-                                            <th>Đơn giá (VND)</th>
+                                            <th>Đơn giá trúng thầu (VND)</th>
                                             <th>Thành tiền (VND)</th>
                                             <th>Tên thuốc</th>
-                                            <th>Hoạt chất/Thành phần</th>
+                                            <th>Tên hoạt chất/ Tên thành phần của thuốc</th>
                                             <th>Nồng độ, hàm lượng</th>
                                             <th>Đường dùng</th>
                                             <th>Dạng bào chế</th>
@@ -89,8 +96,10 @@
                                             <th>GĐKLH hoặc GPNK</th>
                                             <th>Cơ sở sản xuất</th>
                                             <th>Xuất xứ</th>
-                                            <th>Nhà thầu</th>
+                                            <th>Nhà thầu trúng thầu</th>
                                             <th>Hình thức lựa chọn nhà thầu</th>
+                                            <th>Địa điểm</th>
+                                            <th>Tình trạng hiệu lực</th>
                                         </tr>
                                     </thead>
                                     <tbody id="standard-data"></tbody>
@@ -117,7 +126,7 @@
                         </div>
                         <div class="table-wrapper">
                             <div class="table-scroll">
-                                <table class="data-table">
+                                <table class="data-table" id="extended-table" >
                                     <thead>
                                         <tr>
                                             <th>Mã TBMT</th>
@@ -127,16 +136,18 @@
                                             <th>Ngày hết hiệu lực</th>
                                             <th>Đơn vị tính</th>
                                             <th>Khối lượng</th>
-                                            <th>Đơn giá (VND)</th>
+                                            <th>Đơn giá trúng thầu (VND)</th>
                                             <th>Thành tiền (VND)</th>
                                             <th>Tên hàng hóa</th>
                                             <th>Nhãn hiệu</th>
                                             <th>Ký mã hiệu</th>
-                                            <th>Cấu hình, tính năng kỹ thuật</th>
+                                            <th>Cấu hình, tính năng kỹ thuật cơ bản</th>
                                             <th>Xuất xứ</th>
                                             <th>Hãng sản xuất</th>
-                                            <th>Nhà thầu</th>
+                                            <th>Nhà thầu trúng thầu</th>
                                             <th>Hình thức lựa chọn nhà thầu</th>
+                                            <th>Địa điểm</th>
+                                            <th>Tình trạng hiệu lực</th>
                                         </tr>
                                     </thead>
                                     <tbody id="extended-data"></tbody>
@@ -236,7 +247,7 @@
                         <div class="readme-info-card">
                             <div class="info-icon">📋</div>
                             <h3>Thông tin thầu</h3>
-                            <p>Mã TBMT, chủ đầu tư, tên gói thầu, thời gian thực hiện gói thầu, đấu thầu qua mạng, giá gói thầu, ngày phê duyệt, số quyết định phê duyệt, hình thức lựa chọn nhà thầu, phương thức lựa chọn nhà thầu</p>
+                            <p>Mã TBMT, chủ đầu tư, ngày phê duyệt, số quyết định phê duyệt, hình thức lựa chọn nhà thầu, địa điểm, tình trạng hiệu lực</p>
                         </div>
                     </div>
                 </section>
@@ -245,6 +256,14 @@
                     <h2>Mục đích</h2>
                     <p>Hỗ trợ cơ quan y tế, doanh nghiệp dược tra cứu thông tin thuốc trúng thầu nhanh chóng từ nguồn dữ liệu chính thống.</p>
                 </section>
+                
+                <section class="readme-section">
+                    <h2>Lưu ý</h2>
+                    <p><strong>Dữ liệu chuẩn hóa:</strong> Các gói thầu có các trường thông tin được tách riêng và được điền tương đối nhất quán (tên thuốc, hoạt chất, hàm lượng, đường dùng…), nên hệ thống có thể lọc theo từng tiêu chí rõ ràng.</p>
+                    <p><strong>Dữ liệu tổng hợp:</strong> Các gói thầu dùng một biến gộp chứa nhiều thông tin và được điền không nhất quán nên cấu trúc không thống nhất. Việc tách, chuẩn hóa nội dung từ biến gộp này vượt quá khả năng xử lý thủ công nên hệ thống giữ nguyên để người dùng tra cứu, đối chiếu bổ sung.</p>
+                    <p><strong>Lọc &amp; từ khóa:</strong> Kết quả tìm kiếm phụ thuộc vào cách sử dụng từ khóa (xem thêm phần <strong><em>“Mẹo tìm kiếm”</em></strong>).</p>
+                </section>
+
             </div>
 
             <div class="readme-footer">
@@ -255,15 +274,6 @@
                 <button class="btn-readme-primary" id="got-it-btn">Đã hiểu</button>
             </div>
         </div>
-    </div>
-
-    <div id="readme-icon" class="readme-icon" style="display: none;">
-        <button id="open-readme" title="Xem giới thiệu">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V9H11V15ZM11 7H9V5H11V7Z" fill="currentColor"/>
-            </svg>
-            <span>Giới thiệu</span>
-        </button>
     </div>
 
     <div id="readme-icon" class="readme-icon" style="display: none;">
@@ -367,6 +377,45 @@
             </div> -->
         </div>
     </div>
+
+    <!-- HISTORY MODAL -->
+    <div id="history-modal" class="history-modal">
+        <div class="history-overlay"></div>
+        <div class="history-content">
+            <div class="history-header">
+                <h3>
+                    <i data-feather="list"></i>
+                    Lịch sử cập nhật dữ liệu
+                </h3>
+                <button class="modal-close" id="close-history">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="history-body">
+                <div class="history-summary">
+                    <div class="summary-item">
+                        <label>Lần cập nhật gần nhất</label>
+                        <div id="modal-last-update" class="summary-value">Đang tải...</div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Trạng thái</label>
+                        <div id="modal-freshness" class="summary-value">Đang tải...</div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Số quyết định đã xử lý</label>
+                        <div id="modal-boxes-total" class="summary-value">Đang tải...</div>
+                    </div>
+                </div>
+                <div id="history-list" class="history-list">
+                    <div class="history-empty">
+                        <i data-feather="clock"></i>
+                        <p>Chưa có lịch sử cập nhật</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

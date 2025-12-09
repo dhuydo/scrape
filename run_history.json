@@ -1,0 +1,122 @@
+[
+  {
+    "start_time": "2025-12-01 16:04:48",
+    "end_time": "2025-12-01 16:23:38",
+    "duration_seconds": 1130,
+    "boxes_selected": 52
+  },
+  {
+    "start_time": "2025-12-01 16:14:41",
+    "end_time": "2025-12-01 16:28:58",
+    "duration_seconds": 857,
+    "boxes_selected": 48
+  },
+  {
+    "start_time": "2025-12-02 09:49:14",
+    "end_time": "2025-12-02 10:08:11",
+    "duration_seconds": 1137,
+    "boxes_selected": 49
+  },
+  {
+    "start_time": "2025-12-02 17:37:06",
+    "end_time": "2025-12-02 17:53:31",
+    "duration_seconds": 985,
+    "boxes_selected": 52
+  },
+  {
+    "start_time": "2025-12-02 17:44:40",
+    "end_time": "2025-12-02 17:59:06",
+    "duration_seconds": 866,
+    "boxes_selected": 51
+  },
+  {
+    "start_time": "2025-12-03 11:46:14",
+    "end_time": "2025-12-03 12:02:32",
+    "duration_seconds": 978,
+    "boxes_selected": 44
+  },
+  {
+    "start_time": "2025-12-03 12:50:47",
+    "end_time": "2025-12-03 13:06:16",
+    "duration_seconds": 929,
+    "boxes_selected": 47
+  },
+  {
+    "start_time": "2025-12-03 12:58:36",
+    "end_time": "2025-12-03 13:13:29",
+    "duration_seconds": 893,
+    "boxes_selected": 38
+  },
+  {
+    "start_time": "2025-12-04 08:46:58",
+    "end_time": "2025-12-04 09:04:44",
+    "duration_seconds": 1066,
+    "boxes_selected": 40
+  },
+  {
+    "start_time": "2025-12-04 10:46:58",
+    "end_time": "2025-12-04 11:05:53",
+    "duration_seconds": 1135,
+    "boxes_selected": 41
+  },
+  {
+    "start_time": "2025-12-04 12:25:05",
+    "end_time": "2025-12-04 12:42:31",
+    "duration_seconds": 1046,
+    "boxes_selected": 53
+  },
+  {
+    "start_time": "2025-12-05 08:19:46",
+    "end_time": "2025-12-05 08:36:33",
+    "duration_seconds": 1007,
+    "boxes_selected": 43
+  },
+  {
+    "start_time": "2025-12-05 08:59:55",
+    "end_time": "2025-12-05 09:15:16",
+    "duration_seconds": 921,
+    "boxes_selected": 51
+  },
+  {
+    "start_time": "2025-12-05 12:43:19",
+    "end_time": "2025-12-05 12:59:46",
+    "duration_seconds": 987,
+    "boxes_selected": 42
+  },
+  {
+    "start_time": "2025-12-06 11:47:34",
+    "end_time": "2025-12-06 12:04:47",
+    "duration_seconds": 1033,
+    "boxes_selected": 49
+  },
+  {
+    "start_time": "2025-12-06 12:02:34",
+    "end_time": "2025-12-06 12:18:15",
+    "duration_seconds": 941,
+    "boxes_selected": 50
+  },
+  {
+    "start_time": "2025-12-06 12:53:07",
+    "end_time": "2025-12-06 13:07:43",
+    "duration_seconds": 876,
+    "boxes_selected": 47
+  },
+  {
+    "start_time": "2025-12-07 10:51:43",
+    "end_time": "2025-12-07 11:08:22",
+    "duration_seconds": 999,
+    "boxes_selected": 51
+  },
+  {
+    "start_time": "2025-12-07 12:57:02",
+    "end_time": "2025-12-07 13:11:44",
+    "duration_seconds": 882,
+    "boxes_selected": 44
+  },
+  {
+    "start_time": "2025-12-07 17:48:32",
+    "end_time": "2025-12-07 18:02:47",
+    "duration_seconds": 855,
+    "boxes_selected": 47
+  }
+]
