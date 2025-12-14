@@ -1,91 +1,416 @@
+
+// ========== PHẦN 1: GLOBAL SCOPE ==========
+// FORMAT UTILS
+function formatCurrency(v) {
+  if (v === null || v === undefined || v === '') return '';
+  const num = Number(v);
+  if (isNaN(num)) return v;
+  return num.toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+}
+function formatNumber(v) {
+  if (v === null || v === undefined || v === '') return '';
+  const num = Number(v);
+  if (isNaN(num)) return v;
+  return num.toLocaleString('vi-VN');
+}
+function formatDate(dateValue) {
+  if (!dateValue) return '';
+  try {
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return '';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  } catch (e) {
+    return '';
+  }
+}
+
+// Thứ tự cột
+const DF1_COLUMNS_ORDER = [
+    'Mã TBMT','Chủ đầu tư','Số quyết định phê duyệt','Ngày phê duyệt','Ngày hết hiệu lực','Đơn vị tính','Số lượng','Đơn giá trúng thầu (VND)',
+    'Thành tiền (VND)','Tên thuốc','Tên hoạt chất/ Tên thành phần của thuốc','Nồng độ, hàm lượng','Đường dùng','Dạng bào chế','Quy cách',
+    'Nhóm thuốc','GĐKLH hoặc GPNK','Cơ sở sản xuất','Xuất xứ','Nhà thầu trúng thầu','Hình thức lựa chọn nhà thầu','Địa điểm','Tình trạng hiệu lực'
+    ];
+const DF2_COLUMNS_ORDER = [
+'Mã TBMT','Chủ đầu tư','Số quyết định phê duyệt','Ngày phê duyệt','Ngày hết hiệu lực','Đơn vị tính','Khối lượng','Đơn giá trúng thầu (VND)',
+'Thành tiền (VND)','Tên hàng hóa','Nhãn hiệu','Ký mã hiệu','Cấu hình, tính năng kỹ thuật cơ bản','Xuất xứ','Hãng sản xuất',
+'Nhà thầu trúng thầu','Hình thức lựa chọn nhà thầu','Địa điểm','Tình trạng hiệu lực'
+];
+let currentColumnOrderDf1 = [...DF1_COLUMNS_ORDER];
+let currentColumnOrderDf2 = [...DF2_COLUMNS_ORDER];
+
+// Restore từ localStorage
+function restoreColumnOrderFromStorage() {
+    const saved1 = localStorage.getItem('columnOrderDf1');
+    const saved2 = localStorage.getItem('columnOrderDf2');
+
+    if (saved1) {
+        try {
+        currentColumnOrderDf1 = JSON.parse(saved1);
+        console.log('✅ Khôi phục thứ tự cột DF1 từ storage:', currentColumnOrderDf1);
+        } catch (e) {
+        console.warn('Không parse được columnOrderDf1, dùng mặc định');
+        }
+    }
+
+    if (saved2) {
+        try {
+        currentColumnOrderDf2 = JSON.parse(saved2);
+        console.log('✅ Khôi phục thứ tự cột DF2 từ storage:', currentColumnOrderDf2);
+        } catch (e) {
+        console.warn('Không parse được columnOrderDf2, dùng mặc định');
+        }
+    }
+}
+
+// Map field
+function mapDf1Field(item, colName) {
+    switch (colName) {
+        case 'Mã TBMT': return item['Mã TBMT'];
+        case 'Chủ đầu tư': return item['Chủ đầu tư'];
+        case 'Số quyết định phê duyệt': return item['Số quyết định phê duyệt'];
+        case 'Ngày phê duyệt': return formatDate(item['Ngày phê duyệt']);
+        case 'Ngày hết hiệu lực': return formatDate(item['Ngày hết hiệu lực']);
+        case 'Đơn vị tính': return item['Đơn vị tính'];
+        case 'Số lượng': return formatNumber(item['Số lượng']);
+        case 'Đơn giá trúng thầu (VND)': return formatCurrency(item['Đơn giá trúng thầu (VND)']);
+        case 'Thành tiền (VND)': return formatCurrency(item['Thành tiền (VND)']);
+        case 'Tên thuốc': return item['Tên thuốc'];
+        case 'Tên hoạt chất/ Tên thành phần của thuốc': return item['Tên hoạt chất/ Tên thành phần của thuốc'];
+        case 'Nồng độ, hàm lượng': return item['Nồng độ, hàm lượng'];
+        case 'Đường dùng': return item['Đường dùng'];
+        case 'Dạng bào chế': return item['Dạng bào chế'];
+        case 'Quy cách': return item['Quy cách'];
+        case 'Nhóm thuốc': return item['Nhóm thuốc'];
+        case 'GĐKLH hoặc GPNK': return item['GĐKLH hoặc GPNK'];
+        case 'Cơ sở sản xuất': return item['Cơ sở sản xuất'];
+        case 'Xuất xứ': return item['Xuất xứ'];
+        case 'Nhà thầu trúng thầu': return item['Nhà thầu trúng thầu'];
+        case 'Hình thức lựa chọn nhà thầu': return item['Hình thức lựa chọn nhà thầu'];
+        case 'Địa điểm': return item['Địa điểm'];
+        case 'Tình trạng hiệu lực': return item['Tình trạng hiệu lực'];
+        default: return '';
+    }
+}
+
+function mapDf2Field(item, colName) {
+    switch (colName) {
+        case 'Mã TBMT': return item['Mã TBMT'];
+        case 'Chủ đầu tư': return item['Chủ đầu tư'];
+        case 'Số quyết định phê duyệt': return item['Số quyết định phê duyệt'];
+        case 'Ngày phê duyệt': return formatDate(item['Ngày phê duyệt']);
+        case 'Ngày hết hiệu lực': return formatDate(item['Ngày hết hiệu lực']);
+        case 'Đơn vị tính': return item['Đơn vị tính'];
+        case 'Khối lượng': return formatNumber(item['Khối lượng']);
+        case 'Đơn giá trúng thầu (VND)': return formatCurrency(item['Đơn giá trúng thầu (VND)']);
+        case 'Thành tiền (VND)': return formatCurrency(item['Thành tiền (VND)']);
+        case 'Tên hàng hóa': return item['Tên hàng hóa'];
+        case 'Nhãn hiệu': return item['Nhãn hiệu'];
+        case 'Ký mã hiệu': return item['Ký mã hiệu'];
+        case 'Cấu hình, tính năng kỹ thuật cơ bản': return item['Cấu hình, tính năng kỹ thuật cơ bản'];
+        case 'Xuất xứ': return item['Xuất xứ'];
+        case 'Hãng sản xuất': return item['Hãng sản xuất'];
+        case 'Nhà thầu trúng thầu': return item['Nhà thầu trúng thầu'];
+        case 'Hình thức lựa chọn nhà thầu': return item['Hình thức lựa chọn nhà thầu'];
+        case 'Địa điểm': return item['Địa điểm'];
+        case 'Tình trạng hiệu lực': return item['Tình trạng hiệu lực'];
+        default: return '';
+    }
+}
+
+// Các biến DOM elements
+let standardTbody;
+let extendedTbody;
+let df1 = []; // Bộ dữ liệu chuẩn
+let df2 = []; // Bộ dữ liệu mở rộng
+let currentFilteredDf1 = [];
+let currentFilteredDf2 = [];
+
+// Hàm render
+function renderStandardData(data) { // 16 CỘT
+    standardTbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        standardTbody.innerHTML = `
+        <tr>
+            <td colspan="${currentColumnOrderDf1.length}" style="text-align:center;color:#94a3b8;padding:20px">
+            Không có dữ liệu
+            </td>
+        </tr>`;
+        return;
+    }
+
+    data.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+        currentColumnOrderDf1.forEach(colName => {
+        const td = document.createElement('td');
+        td.className = 'px-4 py-2';
+
+        if (colName === 'Số lượng' ||
+            colName === 'Đơn giá trúng thầu (VND)' ||
+            colName === 'Thành tiền (VND)') {
+            td.classList.add('text-right');
+        }
+
+        const value = mapDf1Field(item, colName);
+        td.textContent = value ?? '';
+        tr.appendChild(td);
+        });
+
+        standardTbody.appendChild(tr);
+    });
+}
+
+function renderExtendedData(data) { // 11 CỘT
+    extendedTbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        extendedTbody.innerHTML = `
+        <tr>
+            <td colspan="${currentColumnOrderDf2.length}" style="text-align:center;color:#94a3b8;padding:20px">
+            Không có dữ liệu
+            </td>
+        </tr>`;
+        return;
+    }
+
+    data.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+        currentColumnOrderDf2.forEach(colName => {
+        const td = document.createElement('td');
+        td.className = 'px-4 py-2';
+
+        if (colName === 'Khối lượng' ||
+            colName === 'Đơn giá trúng thầu (VND)' ||
+            colName === 'Thành tiền (VND)') {
+            td.classList.add('text-right');
+        }
+
+        const value = mapDf2Field(item, colName);
+        td.textContent = value ?? '';
+        tr.appendChild(td);
+        });
+
+        extendedTbody.appendChild(tr);
+    });
+}
+
+// Hàm reorder & update (CẬP NHẬT THỨ TỰ CỘT SAU KHI DRAG-DROP)
+function updateColumnOrder(table) {
+  const tableId = table.id;
+  const headers = table.querySelectorAll('thead th');
+  const newOrder = Array.from(headers).map(h =>
+    h.textContent.trim()
+  );
+
+  if (tableId === 'standard-table') {
+    currentColumnOrderDf1 = newOrder;
+    localStorage.setItem('columnOrderDf1', JSON.stringify(newOrder));
+    console.log('✅ Cập nhật thứ tự cột DF1:', currentColumnOrderDf1);
+  } else if (tableId === 'extended-table') {
+    currentColumnOrderDf2 = newOrder;
+    localStorage.setItem('columnOrderDf2', JSON.stringify(newOrder));
+    console.log('✅ Cập nhật thứ tự cột DF2:', currentColumnOrderDf2);
+  }
+}
+
+function reorderTableColumns(table, fromIndex, toIndex) {   // Reorder columns in table DOM
+  console.log(`Reordering columns: ${fromIndex} → ${toIndex}`);
+
+  const theadRow = table.querySelector('thead tr');
+  if (!theadRow) return;
+
+  const headers = Array.from(theadRow.children);
+  if (fromIndex >= headers.length || toIndex >= headers.length) return;
+
+  const draggedHeader = headers[fromIndex];
+  draggedHeader.remove();
+
+  if (toIndex >= theadRow.children.length) {
+    theadRow.appendChild(draggedHeader);
+  } else {
+    theadRow.insertBefore(draggedHeader, theadRow.children[toIndex]);
+  }
+
+  theadRow.querySelectorAll('th').forEach((h, idx) => { // Cập nhật lại index
+    h.dataset.columnIndex = idx;
+  });
+
+  updateColumnOrder(table); // Cập nhật thứ tự cột logic + lưu localStorage
+
+  const tableId = table.id; // Re-render tbody với thứ tự mới
+  if (tableId === 'standard-table') {
+    renderStandardData(currentFilteredDf1);
+  } else if (tableId === 'extended-table') {
+    renderExtendedData(currentFilteredDf2);
+  }
+}
+
+// Drag-drop logic
+let draggedColumnIndex = null;
+let draggedTable = null;
+
+function initTableColumnDragDrop() {    // Initialize drag and drop for table headers
+    console.log('🎯 Initializing column drag & drop...');
+    initTableHeaderDrag('standard-table');
+    initTableHeaderDrag('extended-table');
+}
+
+function initTableHeaderDrag(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        console.warn(`Table ${tableId} not found`);
+        return;
+    }
+    
+    const headers = table.querySelectorAll('thead th');
+    console.log(`📋 Found ${headers.length} headers in ${tableId}`);
+    
+    headers.forEach((header, index) => {
+        // Make draggable
+        header.setAttribute('draggable', 'true');
+        header.dataset.columnIndex = index;
+        header.style.cursor = 'move';
+        
+        // Add visual drag indicator
+        if (!header.querySelector('.drag-indicator')) {
+            const dragIndicator = document.createElement('span');
+            dragIndicator.className = 'drag-indicator';
+            // dragIndicator.innerHTML = '⋮⋮';
+            header.insertBefore(dragIndicator, header.firstChild);
+        }
+        
+        // Remove old listeners if any
+        header.removeEventListener('dragstart', handleColumnDragStart);
+        header.removeEventListener('dragover', handleColumnDragOver);
+        header.removeEventListener('drop', handleColumnDrop);
+        header.removeEventListener('dragend', handleColumnDragEnd);
+        header.removeEventListener('dragenter', handleColumnDragEnter);
+        header.removeEventListener('dragleave', handleColumnDragLeave);
+        
+        // Add drag events
+        header.addEventListener('dragstart', handleColumnDragStart);
+        header.addEventListener('dragover', handleColumnDragOver);
+        header.addEventListener('drop', handleColumnDrop);
+        header.addEventListener('dragend', handleColumnDragEnd);
+        header.addEventListener('dragenter', handleColumnDragEnter);
+        header.addEventListener('dragleave', handleColumnDragLeave);
+    });
+    
+    console.log(`✅ Drag & drop initialized for ${tableId}`);
+}
+
+function handleColumnDragStart(e) {
+    draggedColumnIndex = parseInt(this.dataset.columnIndex);
+    draggedTable = this.closest('table');
+    
+    console.log(`🎬 Drag start: column ${draggedColumnIndex}`);
+    
+    this.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+    
+    draggedTable.classList.add('column-dragging');
+}
+
+function handleColumnDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleColumnDragEnter(e) {
+    if (this.closest('table') === draggedTable && 
+        parseInt(this.dataset.columnIndex) !== draggedColumnIndex) {
+        this.classList.add('drag-over');
+    }
+}
+
+function handleColumnDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function handleColumnDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    
+    const dropColumnIndex = parseInt(this.dataset.columnIndex);
+    
+    console.log(`📍 Drop: from ${draggedColumnIndex} to ${dropColumnIndex}`);
+    
+    // Only process if dropping on same table and different column
+    if (this.closest('table') === draggedTable && draggedColumnIndex !== dropColumnIndex) {
+        reorderTableColumns(draggedTable, draggedColumnIndex, dropColumnIndex);
+    }
+    
+    return false;
+}
+
+function handleColumnDragEnd(e) {
+    this.style.opacity = '1';
+    
+    console.log('🏁 Drag end');
+    
+    // Remove all drag-over classes
+    if (draggedTable) {
+        const headers = draggedTable.querySelectorAll('thead th');
+        headers.forEach(header => {
+            header.classList.remove('drag-over');
+        });
+        
+        draggedTable.classList.remove('column-dragging');
+    }
+    
+    draggedColumnIndex = null;
+    draggedTable = null;
+}
+
+function applySavedColumnOrder(tableId, columnOrder) {
+  const table = document.getElementById(tableId);
+  if (!table || !columnOrder || columnOrder.length === 0) return;
+
+  const allRows = table.querySelectorAll('tr');
+  if (allRows.length === 0) return;
+
+  columnOrder.forEach((colName, targetIndex) => {
+    const currentHeaders = Array.from(table.querySelectorAll('thead th'));
+    const currentIndex = currentHeaders.findIndex(
+      h => h.textContent.trim() === colName.trim()
+    );
+    if (currentIndex === -1 || currentIndex === targetIndex) return;
+
+    allRows.forEach(row => {
+      const cells = Array.from(row.children);
+      if (currentIndex >= cells.length) return;
+      const cell = cells[currentIndex];
+      cell.remove();
+      if (targetIndex >= row.children.length) {
+        row.appendChild(cell);
+      } else {
+        row.insertBefore(cell, row.children[targetIndex]);
+      }
+    });
+  });
+}
+
+
+
+// ========== PHẦN 2: DOMContentLoaded ==========
 document.addEventListener('DOMContentLoaded', function() {
     restoreColumnOrderFromStorage();
 
-    const standardTbody = document.getElementById('standard-data');
-    const extendedTbody = document.getElementById('extended-data');
-    const searchFormElement = document.querySelector('custom-search-form');
-
-    let df1 = [];  // Bộ dữ liệu chuẩn
-    let df2 = [];  // Bộ dữ liệu mở rộng
-
-    // BIẾN LƯU FILTERED DATA
-    let currentFilteredDf1 = [];
-    let currentFilteredDf2 = [];
-
-    // BIẾN LƯU THỨ TỰ CỘT
-    const DF1_COLUMNS_ORDER = [
-    'Mã TBMT',
-    'Chủ đầu tư',
-    'Số quyết định phê duyệt',
-    'Ngày phê duyệt',
-    'Ngày hết hiệu lực',
-    'Đơn vị tính',
-    'Số lượng',
-    'Đơn giá trúng thầu (VND)',
-    'Thành tiền (VND)',
-    'Tên thuốc',
-    'Tên hoạt chất/ Tên thành phần của thuốc',
-    'Nồng độ, hàm lượng',
-    'Đường dùng',
-    'Dạng bào chế',
-    'Quy cách',
-    'Nhóm thuốc',
-    'GĐKLH hoặc GPNK',
-    'Cơ sở sản xuất',
-    'Xuất xứ',
-    'Nhà thầu trúng thầu',
-    'Hình thức lựa chọn nhà thầu',
-    'Địa điểm',
-    'Tình trạng hiệu lực'
-    ];
-
-    const DF2_COLUMNS_ORDER = [
-    'Mã TBMT',
-    'Chủ đầu tư',
-    'Số quyết định phê duyệt',
-    'Ngày phê duyệt',
-    'Ngày hết hiệu lực',
-    'Đơn vị tính',
-    'Khối lượng',
-    'Đơn giá trúng thầu (VND)',
-    'Thành tiền (VND)',
-    'Tên hàng hóa',
-    'Nhãn hiệu',
-    'Ký mã hiệu',
-    'Cấu hình, tính năng kỹ thuật cơ bản',
-    'Xuất xứ',
-    'Hãng sản xuất',
-    'Nhà thầu trúng thầu',
-    'Hình thức lựa chọn nhà thầu',
-    'Địa điểm',
-    'Tình trạng hiệu lực'
-    ];
-    let currentColumnOrderDf1 = [...DF1_COLUMNS_ORDER];
-    let currentColumnOrderDf2 = [...DF2_COLUMNS_ORDER];
-
-    // Khôi phục columns order của người dùng đã define
-    function restoreColumnOrderFromStorage() {
-        const saved1 = localStorage.getItem('columnOrderDf1');
-        const saved2 = localStorage.getItem('columnOrderDf2');
-
-        if (saved1) {
-            try {
-            currentColumnOrderDf1 = JSON.parse(saved1);
-            console.log('✅ Khôi phục thứ tự cột DF1 từ storage:', currentColumnOrderDf1);
-            } catch (e) {
-            console.warn('Không parse được columnOrderDf1, dùng mặc định');
-            }
-        }
-
-        if (saved2) {
-            try {
-            currentColumnOrderDf2 = JSON.parse(saved2);
-            console.log('✅ Khôi phục thứ tự cột DF2 từ storage:', currentColumnOrderDf2);
-            } catch (e) {
-            console.warn('Không parse được columnOrderDf2, dùng mặc định');
-            }
-        }
-        }
+    standardTbody = document.getElementById('standard-data');
+    extendedTbody = document.getElementById('extended-data');
+    const searchFormElement = document.querySelector('custom-search-form');   
 
     // BIẾN LƯU CHART
     let chartPriceHistogram = null;
@@ -306,217 +631,108 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`✅ Exported ${currentFilteredDf1.length + currentFilteredDf2.length} records to ${filename}`);
     });
 
-    // ============ RENDER DF1 - 16 CỘT ============
-    function renderStandardData(data) {
-        standardTbody.innerHTML = '';
-        if (!data || data.length === 0) {
-            standardTbody.innerHTML = '<tr><td colspan="16" style="text-align:center;color:#94a3b8;padding:20px;">Không có dữ liệu</td></tr>';
-            return;
-        }
-        data.forEach((item, index) => {
-            const tr = document.createElement('tr');
-            tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-            tr.innerHTML = `
-                <td class="px-4 py-2">${item['Mã TBMT'] || ''}</td>
-                <td class="px-4 py-2">${item['Chủ đầu tư'] || ''}</td>
-                <td class="px-4 py-2">${item['Số quyết định phê duyệt'] || ''}</td>
-                <td class="px-4 py-2">${formatDate(item['Ngày phê duyệt'])}</td>
-                <td class="px-4 py-2">${formatDate(item['Ngày hết hiệu lực'])}</td>
-                <td class="px-4 py-2">${item['Đơn vị tính'] || ''}</td>
-                <td class="px-4 py-2 text-right">${formatNumber(item['Số lượng'])}</td>
-                <td class="px-4 py-2 text-right">${formatCurrency(item['Đơn giá trúng thầu (VND)'])}</td>
-                <td class="px-4 py-2 text-right">${formatCurrency(item['Thành tiền (VND)'])}</td>
-                <td class="px-4 py-2">${item['Tên thuốc'] || ''}</td>
-                <td class="px-4 py-2">${item['Tên hoạt chất/ Tên thành phần của thuốc'] || ''}</td>
-                <td class="px-4 py-2">${item['Nồng độ, hàm lượng'] || ''}</td>
-                <td class="px-4 py-2">${item['Đường dùng'] || ''}</td>
-                <td class="px-4 py-2">${item['Dạng bào chế'] || ''}</td>
-                <td class="px-4 py-2">${item['Quy cách'] || ''}</td>
-                <td class="px-4 py-2">${item['Nhóm thuốc'] || ''}</td>
-                <td class="px-4 py-2">${item['GĐKLH hoặc GPNK'] || ''}</td>
-                <td class="px-4 py-2">${item['Cơ sở sản xuất'] || ''}</td>
-                <td class="px-4 py-2">${item['Xuất xứ'] || ''}</td>
-                <td class="px-4 py-2">${item['Nhà thầu trúng thầu'] || ''}</td>
-                <td class="px-4 py-2">${item['Hình thức lựa chọn nhà thầu'] || ''}</td>
-                <td class="px-4 py-2">${item['Địa điểm'] || ''}</td>
-                <td class="px-4 py-2">${item['Tình trạng hiệu lực'] || ''}</td>
-            `;
-            standardTbody.appendChild(tr);
-        });
-    }
+    
 
-    // ============ RENDER DF2 - 11 CỘT (không có search) ============
-    function renderExtendedData(data) {
-        extendedTbody.innerHTML = '';
-        if (!data || data.length === 0) {
-            extendedTbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#94a3b8;padding:20px;">Không có dữ liệu</td></tr>';
-            return;
-        }
-        data.forEach((item, index) => {
-            const tr = document.createElement('tr');
-            tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-            tr.innerHTML = `
-                <td class="px-4 py-2">${item['Mã TBMT'] || ''}</td>
-                <td class="px-4 py-2">${item['Chủ đầu tư'] || ''}</td>
-                <td class="px-4 py-2">${item['Số quyết định phê duyệt'] || ''}</td>
-                <td class="px-4 py-2">${formatDate(item['Ngày phê duyệt'])}</td>
-                <td class="px-4 py-2">${formatDate(item['Ngày hết hiệu lực'])}</td>
-                <td class="px-4 py-2">${item['Đơn vị tính'] || ''}</td>
-                <td class="px-4 py-2 text-right">${formatNumber(item['Khối lượng'])}</td>
-                <td class="px-4 py-2 text-right">${formatCurrency(item['Đơn giá trúng thầu (VND)'])}</td>
-                <td class="px-4 py-2 text-right">${formatCurrency(item['Thành tiền (VND)'])}</td>
-                <td class="px-4 py-2">${item['Tên hàng hóa'] || ''}</td>
-                <td class="px-4 py-2">${item['Nhãn hiệu'] || ''}</td>
-                <td class="px-4 py-2">${item['Ký mã hiệu'] || ''}</td>
-                <td class="px-4 py-2">${item['Cấu hình, tính năng kỹ thuật cơ bản'] || ''}</td>
-                <td class="px-4 py-2">${item['Xuất xứ'] || ''}</td>
-                <td class="px-4 py-2">${item['Hãng sản xuất'] || ''}</td>
-                <td class="px-4 py-2">${item['Nhà thầu trúng thầu'] || ''}</td>   
-                <td class="px-4 py-2">${item['Hình thức lựa chọn nhà thầu'] || ''}</td>
-                <td class="px-4 py-2">${item['Địa điểm'] || ''}</td>
-                <td class="px-4 py-2">${item['Tình trạng hiệu lực'] || ''}</td>            
-            `;
-            extendedTbody.appendChild(tr);
-        });
-    }
-
-
-    function formatCurrency(v) {
-    if (v === null || v === undefined || v === '') return '';
-
-    const num = Number(v);
-    if (isNaN(num)) return v;
-
-    return num.toLocaleString('vi-VN', {
-        maximumFractionDigits: 2
-    });
-    }
-
-    function formatNumber(v) {
-    if (v === null || v === undefined || v === '') return '';
-
-    const num = Number(v);
-    if (isNaN(num)) return v;
-
-    return num.toLocaleString('vi-VN');
-    }
 
     function normalizeStr(s) {
         return (s || '').toString().toLowerCase()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     }
 
-    function formatDate(dateValue) {
-    if (!dateValue) return '';
-    
-    try {
-        const date = new Date(dateValue);
-        if (isNaN(date.getTime())) return '';
-        
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        
-        return `${day}/${month}/${year}`;
-    } catch (e) {
-        return '';
-    }
-}
-
     // Parse query search với syntax đặc biệt
-function parseSearchQuery(query) {
-    if (!query || !query.trim()) return null;
-    
-    const result = {
-        mustHave: [],      // Các từ bắt buộc phải có (+)
-        mustNotHave: [],   // Các từ bắt buộc không có (-)
-        shouldHave: [],    // Các từ nên có (OR)
-        phrases: []        // Các cụm chính xác ("...")
-    };
-    
-    let remaining = query;
-    
-    // 1. Extract phrases "..." 
-    const phraseRegex = /"([^"]+)"/g;
-    let match;
-    while ((match = phraseRegex.exec(query)) !== null) {
-        result.phrases.push(normalizeStr(match[1]));
-        remaining = remaining.replace(match[0], '');
-    }
-    
-    // 2. Split by OR
-    const orParts = remaining.split(/\s+OR\s+/i);
-    
-    if (orParts.length > 1) {
-        // Có OR → xử lý từng phần
-        orParts.forEach(part => {
-            const terms = part.trim().split(/\s+/).filter(t => t);
+    function parseSearchQuery(query) {
+        if (!query || !query.trim()) return null;
+        
+        const result = {
+            mustHave: [],      // Các từ bắt buộc phải có (+)
+            mustNotHave: [],   // Các từ bắt buộc không có (-)
+            shouldHave: [],    // Các từ nên có (OR)
+            phrases: []        // Các cụm chính xác ("...")
+        };
+        
+        let remaining = query;
+        
+        // 1. Extract phrases "..." 
+        const phraseRegex = /"([^"]+)"/g;
+        let match;
+        while ((match = phraseRegex.exec(query)) !== null) {
+            result.phrases.push(normalizeStr(match[1]));
+            remaining = remaining.replace(match[0], '');
+        }
+        
+        // 2. Split by OR
+        const orParts = remaining.split(/\s+OR\s+/i);
+        
+        if (orParts.length > 1) {
+            // Có OR → xử lý từng phần
+            orParts.forEach(part => {
+                const terms = part.trim().split(/\s+/).filter(t => t);
+                terms.forEach(term => {
+                    if (term.startsWith('-')) {
+                        result.mustNotHave.push(normalizeStr(term.substring(1)));
+                    } else if (term.startsWith('+')) {
+                        result.mustHave.push(normalizeStr(term.substring(1)));
+                    } else if (term) {
+                        result.shouldHave.push(normalizeStr(term));
+                    }
+                });
+            });
+        } else {
+            // Không có OR → xử lý +/-/normal
+            const terms = remaining.trim().split(/\s+/).filter(t => t);
             terms.forEach(term => {
                 if (term.startsWith('-')) {
                     result.mustNotHave.push(normalizeStr(term.substring(1)));
                 } else if (term.startsWith('+')) {
                     result.mustHave.push(normalizeStr(term.substring(1)));
                 } else if (term) {
-                    result.shouldHave.push(normalizeStr(term));
+                    result.mustHave.push(normalizeStr(term)); // Mặc định là AND
                 }
             });
-        });
-    } else {
-        // Không có OR → xử lý +/-/normal
-        const terms = remaining.trim().split(/\s+/).filter(t => t);
-        terms.forEach(term => {
-            if (term.startsWith('-')) {
-                result.mustNotHave.push(normalizeStr(term.substring(1)));
-            } else if (term.startsWith('+')) {
-                result.mustHave.push(normalizeStr(term.substring(1)));
-            } else if (term) {
-                result.mustHave.push(normalizeStr(term)); // Mặc định là AND
-            }
-        });
+        }
+        
+        return result;
     }
-    
-    return result;
-}
 
-// Kiểm tra xem text có match với parsed query không
-function matchQuery(text, parsedQuery) {
-    if (!parsedQuery) return true;
-    
-    const normalizedText = normalizeStr(text || '');
-    
-    // 1. Check phrases (cụm chính xác)
-    for (const phrase of parsedQuery.phrases) {
-        if (!normalizedText.includes(phrase)) {
-            return false;
+    // Kiểm tra xem text có match với parsed query không
+    function matchQuery(text, parsedQuery) {
+        if (!parsedQuery) return true;
+        
+        const normalizedText = normalizeStr(text || '');
+        
+        // 1. Check phrases (cụm chính xác)
+        for (const phrase of parsedQuery.phrases) {
+            if (!normalizedText.includes(phrase)) {
+                return false;
+            }
         }
-    }
-    
-    // 2. Check mustNotHave (từ cấm)
-    for (const term of parsedQuery.mustNotHave) {
-        if (normalizedText.includes(term)) {
-            return false;
+        
+        // 2. Check mustNotHave (từ cấm)
+        for (const term of parsedQuery.mustNotHave) {
+            if (normalizedText.includes(term)) {
+                return false;
+            }
         }
-    }
-    
-    // 3. Check mustHave (từ bắt buộc - AND)
-    for (const term of parsedQuery.mustHave) {
-        if (!normalizedText.includes(term)) {
-            return false;
+        
+        // 3. Check mustHave (từ bắt buộc - AND)
+        for (const term of parsedQuery.mustHave) {
+            if (!normalizedText.includes(term)) {
+                return false;
+            }
         }
-    }
-    
-    // 4. Check shouldHave (từ tùy chọn - OR)
-    if (parsedQuery.shouldHave.length > 0) {
-        const hasAtLeastOne = parsedQuery.shouldHave.some(term => 
-            normalizedText.includes(term)
-        );
-        if (!hasAtLeastOne) {
-            return false;
+        
+        // 4. Check shouldHave (từ tùy chọn - OR)
+        if (parsedQuery.shouldHave.length > 0) {
+            const hasAtLeastOne = parsedQuery.shouldHave.some(term => 
+                normalizedText.includes(term)
+            );
+            if (!hasAtLeastOne) {
+                return false;
+            }
         }
+        
+        return true;
     }
-    
-    return true;
-}
 
 
     // ============ FILTER LOGIC ============
@@ -715,9 +931,49 @@ function matchQuery(text, parsedQuery) {
 
         console.log('✅ Filtered df1:', filteredDf1.length, 'df2:', filteredDf2.length);
 
+        // ✅ THÊM: Giới hạn kết quả
+        const MAX_RESULTS_PER_TABLE = 200;
+        const totalResults = filteredDf1.length + filteredDf2.length;
+        let isLimited = false;
+
+        if (filteredDf1.length > MAX_RESULTS_PER_TABLE) {
+            filteredDf1 = filteredDf1.slice(0, MAX_RESULTS_PER_TABLE);
+            isLimited = true;
+        }
+
+        if (filteredDf2.length > MAX_RESULTS_PER_TABLE) {
+            filteredDf2 = filteredDf2.slice(0, MAX_RESULTS_PER_TABLE);
+            isLimited = true;
+        }
+
+        if (isLimited) {
+            const displayedCount = filteredDf1.length + filteredDf2.length;
+            alert(
+                `⚠️ GIỚI HẠN KẾT QUẢ TÌM KIẾM\n\n` +
+                // `Hệ thống ghi nhận ${totalResults.toLocaleString('vi-VN')} bản ghi phù hợp với tiêu chí tìm kiếm.\n` +
+                // `Do giới hạn hiển thị, hiện tại chỉ ${displayedCount.toLocaleString('vi-VN')} kết quả đầu tiên được trình bày.\n\n` +
+                // `Để truy xuất đầy đủ dữ liệu, đề nghị người dùng:\n` +
+                `Quá nhiều dữ liệu thỏa điều kiện tìm kiếm. Đề nghị người dùng:\n` +
+                `- Bổ sung từ khóa tìm kiếm;\n` +
+                `- Thu hẹp khoảng thời gian tìm kiếm;\n`
+            )
+
+            // Hiển thị badge warning
+            const warningDiv = document.getElementById('result-warning');
+            if (warningDiv) {
+                warningDiv.style.display = 'block';
+                // document.getElementById('displayed-count').textContent = displayedCount.toLocaleString('vi-VN');
+                // document.getElementById('total-count').textContent = totalResults.toLocaleString('vi-VN');
+            }
+            } else {
+            // Ẩn badge nếu không bị giới hạn
+            const warningDiv = document.getElementById('result-warning');
+            if (warningDiv) warningDiv.style.display = 'none';
+            }
+        
         // Sort theo ngày phê duyệt (mới nhất lên trước)
-        filteredDf1 = sortByDate(filteredDf1);
-        filteredDf2 = sortByDate(filteredDf2);
+        filteredDf1 = multiSortDf1(filteredDf1);
+        filteredDf2 = multiSortDf2(filteredDf2);
         
         // SAVE to global variables for export
         currentFilteredDf1 = filteredDf1;
@@ -733,24 +989,89 @@ function matchQuery(text, parsedQuery) {
         drawCharts(filteredDf1, filteredDf2);
     }
 
-    function sortByDate(data) {
+    function multiSortDf1(data) {
         return data.sort((a, b) => {
-            const dateA = a['Ngày phê duyệt'];
-            const dateB = b['Ngày phê duyệt'];
-            
-            // Nếu không có ngày, đẩy xuống cuối
-            if (!dateA && !dateB) return 0;
-            if (!dateA) return 1;
-            if (!dateB) return -1;
-            
-            // Parse ngày (backend đã convert sang ISO string hoặc timestamp)
+            // 1) Ngày phê duyệt: mới → cũ
+            const dateA = a["Ngày phê duyệt"];
+            const dateB = b["Ngày phê duyệt"];
+
+            if (!dateA && !dateB) {
+            // 2) Nếu cả hai không có ngày, so tiếp Mã TBMT
+            } else if (!dateA) {
+            return 1; // không có ngày xuống dưới
+            } else if (!dateB) {
+            return -1;
+            } else {
             const timeA = new Date(dateA).getTime();
             const timeB = new Date(dateB).getTime();
-            
-            // Sort giảm dần (mới nhất lên trước)
-            return timeB - timeA;
+            if (timeA !== timeB) {
+                return timeB - timeA; // mới hơn lên trước
+            }
+            }
+
+            // 2) Mã TBMT: tăng dần
+            const maA = a["Mã TBMT"] ?? "";
+            const maB = b["Mã TBMT"] ?? "";
+            if (maA !== maB) {
+            // nếu mã là số, có thể parse; nếu không, so chuỗi
+            const numA = Number(maA);
+            const numB = Number(maB);
+            if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+                if (numA !== numB) return numA - numB;
+            } else {
+                const cmpMa = String(maA).localeCompare(String(maB), "vi-VN");
+                if (cmpMa !== 0) return cmpMa;
+            }
+            }
+
+            // 3) Tên thuốc: A → Z
+            const tenA = (a["Tên thuốc"] ?? "").toString();
+            const tenB = (b["Tên thuốc"] ?? "").toString();
+            return tenA.localeCompare(tenB, "vi-VN");
         });
     }
+
+    function multiSortDf2(data) {
+        return data.sort((a, b) => {
+            // 1) Ngày phê duyệt: mới → cũ
+            const dateA = a["Ngày phê duyệt"];
+            const dateB = b["Ngày phê duyệt"];
+
+            if (!dateA && !dateB) {
+            // tiếp tục
+            } else if (!dateA) {
+            return 1;
+            } else if (!dateB) {
+            return -1;
+            } else {
+            const timeA = new Date(dateA).getTime();
+            const timeB = new Date(dateB).getTime();
+            if (timeA !== timeB) {
+                return timeB - timeA;
+            }
+            }
+
+            // 2) Mã TBMT: tăng dần
+            const maA = a["Mã TBMT"] ?? "";
+            const maB = b["Mã TBMT"] ?? "";
+            if (maA !== maB) {
+            const numA = Number(maA);
+            const numB = Number(maB);
+            if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+                if (numA !== numB) return numA - numB;
+            } else {
+                const cmpMa = String(maA).localeCompare(String(maB), "vi-VN");
+                if (cmpMa !== 0) return cmpMa;
+            }
+            }
+
+            // 3) Tên hàng hóa: A → Z
+            const tenA = (a["Tên hàng hóa"] ?? "").toString();
+            const tenB = (b["Tên hàng hóa"] ?? "").toString();
+            return tenA.localeCompare(tenB, "vi-VN");
+        });
+    }
+
 
     if (searchFormElement) {
         searchFormElement.addEventListener('apply-filters', (e) => applyFilters(e.detail));
@@ -803,686 +1124,487 @@ function matchQuery(text, parsedQuery) {
     });
 
     // Init message cho charts
-function initEmptyCharts() {
-    const noDataMsg = 'Chưa có dữ liệu. Vui lòng thực hiện tìm kiếm để xem biểu đồ.';
+    function initEmptyCharts() {
+        const noDataMsg = 'Chưa có dữ liệu. Vui lòng thực hiện tìm kiếm để xem biểu đồ.';
 
-    // Không đụng vào cấu trúc .chart-block, .charts-grid
-    ['chart-suppliers', 'chart-prices', 'chart-timeline', 'chart-dosage-forms'].forEach(id => {
-        const canvas = document.getElementById(id);
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        // Xóa nội dung canvas nếu có
-        ctx.clearRect(0, 0, canvas.width || canvas.clientWidth || 300, canvas.height || canvas.clientHeight || 150);
-
-        // Không ghi đè parent.innerHTML nữa để khỏi mất canvas
-        // Nếu muốn message, nên làm riêng một div phía trên, không phá canvas
-    });
-}
-
-
-function destroyCharts() {
-    if (chartPriceHistogram) { chartPriceHistogram.destroy(); chartPriceHistogram = null; }
-    if (chartTimelineValue) { chartTimelineValue.destroy(); chartTimelineValue = null; }
-    if (chartPriceBoxplot) { chartPriceBoxplot.destroy(); chartPriceBoxplot = null; }    
-    if (chartSelectionMethod) { chartSelectionMethod.destroy(); chartSelectionMethod = null; } 
-    
-}
-
-function drawCharts(df1Data, df2Data) {
-    const totalRecords = (df1Data?.length || 0) + (df2Data?.length || 0);
-    const noDataMsg = 'Chưa có dữ liệu. Vui lòng thực hiện tìm kiếm để xem biểu đồ.';
-
-    destroyCharts();
-
-    if (totalRecords === 0) {
-        ['chart-price-histogram', 'chart-price-boxplot', 'chart-timeline-value', 'chart-selection-method'].forEach(id => {
+        // Không đụng vào cấu trúc .chart-block, .charts-grid
+        ['chart-suppliers', 'chart-prices', 'chart-timeline', 'chart-dosage-forms'].forEach(id => {
             const canvas = document.getElementById(id);
-            if (canvas) {
-                canvas.classList.add('hidden');
-                
-                let msg = canvas.parentElement.querySelector('.no-data-msg');
-                if (!msg) {
-                    msg = document.createElement('p');
-                    msg.className = 'no-data-msg';
-                    msg.textContent = noDataMsg;
-                    canvas.parentElement.appendChild(msg);
-                }
-                msg.classList.add('visible');
-            }
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            // Xóa nội dung canvas nếu có
+            ctx.clearRect(0, 0, canvas.width || canvas.clientWidth || 300, canvas.height || canvas.clientHeight || 150);
+
+            // Không ghi đè parent.innerHTML nữa để khỏi mất canvas
+            // Nếu muốn message, nên làm riêng một div phía trên, không phá canvas
         });
-        return;
     }
 
-    const all = [...df1Data, ...df2Data];
 
-    // ============ 1. HISTOGRAM GIÁ ============
-    const priceMap = {};
-    all.forEach(r => {
-        const price = Number(r['Đơn giá trúng thầu (VND)']);
-        if (!isNaN(price) && price > 0) {
-            if (!priceMap[price]) {
-                priceMap[price] = 0;
-            }
-            priceMap[price]++;
+    function destroyCharts() {
+        if (chartPriceHistogram) { chartPriceHistogram.destroy(); chartPriceHistogram = null; }
+        if (chartTimelineValue) { chartTimelineValue.destroy(); chartTimelineValue = null; }
+        if (chartPriceBoxplot) { chartPriceBoxplot.destroy(); chartPriceBoxplot = null; }    
+        if (chartSelectionMethod) { chartSelectionMethod.destroy(); chartSelectionMethod = null; } 
+        
+    }
+
+    function drawCharts(df1Data, df2Data) {
+        const totalRecords = (df1Data?.length || 0) + (df2Data?.length || 0);
+        const noDataMsg = 'Chưa có dữ liệu. Vui lòng thực hiện tìm kiếm để xem biểu đồ.';
+
+        destroyCharts();
+
+        if (totalRecords === 0) {
+            ['chart-price-histogram', 'chart-price-boxplot', 'chart-timeline-value', 'chart-selection-method'].forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    canvas.classList.add('hidden');
+                    
+                    let msg = canvas.parentElement.querySelector('.no-data-msg');
+                    if (!msg) {
+                        msg = document.createElement('p');
+                        msg.className = 'no-data-msg';
+                        msg.textContent = noDataMsg;
+                        canvas.parentElement.appendChild(msg);
+                    }
+                    msg.classList.add('visible');
+                }
+            });
+            return;
         }
-    });
 
-    const sortedPrices = Object.entries(priceMap)
-        .map(([priceNum, count]) => ({
-            price: Number(priceNum),
-            count
-        }))
-        .sort((a, b) => a.price - b.price);
+        const all = [...df1Data, ...df2Data];
 
-    const priceLabels = sortedPrices.map(x => x.price.toLocaleString('vi-VN'));
-    const priceCounts = sortedPrices.map(x => x.count);
-
-    const ctxPriceCanvas = document.getElementById('chart-price-histogram');
-    if (ctxPriceCanvas && priceLabels.length > 0) {
-        const msg = ctxPriceCanvas.parentElement.querySelector('.no-data-msg');
-        if (msg) msg.classList.remove('visible');
-        ctxPriceCanvas.classList.remove('hidden');
-
-        const ctxPrice = ctxPriceCanvas.getContext('2d');
-        chartPriceHistogram = new Chart(ctxPrice, {
-            type: 'bar',
-            data: {
-                labels: priceLabels,
-                datasets: [{
-                    label: 'Số lượng bản ghi',
-                    data: priceCounts,
-                    backgroundColor: '#6C5CE7',
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            title: (items) => `Giá: ${items[0].label}`,
-                            label: (item) => `Số bản ghi: ${item.formattedValue}`
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            autoSkip: true,
-                            maxRotation: 45,
-                            minRotation: 45,
-                            font: { size: 12 }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1,
-                            font: { size: 12 }
-                        }
-                    }
-                },
-                layout: {
-                    padding: { top: 10, bottom: 10 }
+        // ============ 1. HISTOGRAM GIÁ ============
+        const priceMap = {};
+        all.forEach(r => {
+            const price = Number(r['Đơn giá trúng thầu (VND)']);
+            if (!isNaN(price) && price > 0) {
+                if (!priceMap[price]) {
+                    priceMap[price] = 0;
                 }
+                priceMap[price]++;
             }
         });
-    }
 
-    // ============ 2. BOXPLOT CHUẨN ============
-    const prices = all
-        .map(r => Number(r['Đơn giá trúng thầu (VND)']))
-        .filter(p => !isNaN(p) && p > 0);
+        const sortedPrices = Object.entries(priceMap)
+            .map(([priceNum, count]) => ({
+                price: Number(priceNum),
+                count
+            }))
+            .sort((a, b) => a.price - b.price);
 
-    const ctxBoxplotCanvas = document.getElementById('chart-price-boxplot');
-    if (ctxBoxplotCanvas && prices.length > 0) {
-        const msg = ctxBoxplotCanvas.parentElement.querySelector('.no-data-msg');
-        if (msg) msg.classList.remove('visible');
-        ctxBoxplotCanvas.classList.remove('hidden');
+        const priceLabels = sortedPrices.map(x => x.price.toLocaleString('vi-VN'));
+        const priceCounts = sortedPrices.map(x => x.count);
 
-        const ctxBoxplot = ctxBoxplotCanvas.getContext('2d');
-        chartPriceBoxplot = new Chart(ctxBoxplot, {
-            type: 'boxplot',
-            data: {
-                labels: ['Giá'],
-                datasets: [{
-                    label: 'Phân bố giá',
-                    data: [prices],
-                    backgroundColor: 'rgba(108, 92, 231, 0.2)', // ĐỔI: cam → tím
-                    borderColor: '#6C5CE7', // ĐỔI: #FF6B6B → #6C5CE7
-                    borderWidth: 2,
-                    outlierBackgroundColor: '#5f3dc4', // ĐỔI: #fa5252 → tím đậm
-                    outlierBorderColor: '#5f3dc4', // ĐỔI: #fa5252 → tím đậm
-                    itemRadius: 0,
-                    outlierRadius: 3,
-                    medianColor: '#7c6eea' // ĐỔI: #c92a2a → tím sáng
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'nearest',  // Tìm element gần nhất
-                    axis: 'xy',       // Theo cả 2 trục
-                    intersect: false  // QUAN TRỌNG: Không cần hover chính xác
+        const ctxPriceCanvas = document.getElementById('chart-price-histogram');
+        if (ctxPriceCanvas && priceLabels.length > 0) {
+            const msg = ctxPriceCanvas.parentElement.querySelector('.no-data-msg');
+            if (msg) msg.classList.remove('visible');
+            ctxPriceCanvas.classList.remove('hidden');
+
+            const ctxPrice = ctxPriceCanvas.getContext('2d');
+            chartPriceHistogram = new Chart(ctxPrice, {
+                type: 'bar',
+                data: {
+                    labels: priceLabels,
+                    datasets: [{
+                        label: 'Số lượng bản ghi',
+                        data: priceCounts,
+                        backgroundColor: '#6C5CE7',
+                        borderRadius: 6
+                    }]
                 },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: true,
-                        mode: 'nearest',    // Tooltip hiện cho element gần nhất
-                        intersect: false,   // QUAN TRỌNG: Không cần intersect
-                        axis: 'xy',
-                        
-                        // Tăng khoảng cách nhận diện hover
-                        hitRadius: 30,      // THÊM: Tăng vùng nhận diện
-                        callbacks: {
-                            label: (context) => {
-                                const value = context.parsed;
-                                if (value.min !== undefined) {
-                                    return [
-                                        `Max: ${value.max.toLocaleString('vi-VN')}`,
-                                        `Q3: ${value.q3.toLocaleString('vi-VN')}`,
-                                        `Median: ${value.median.toLocaleString('vi-VN')}`,
-                                        `Q1: ${value.q1.toLocaleString('vi-VN')}`,
-                                        `Min: ${value.min.toLocaleString('vi-VN')}`
-                                    ];
-                                }
-                                return `${value.toLocaleString('vi-VN')}`;
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => `Giá: ${items[0].label}`,
+                                label: (item) => `Số bản ghi: ${item.formattedValue}`
                             }
                         }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => {
-                                if (value >= 1_000_000) {
-                                    return (value / 1_000_000).toFixed(0).toLocaleString('vi-VN') + ' tr';
-                                }
-                                return value.toLocaleString('vi-VN');
-                            },
-                            font: { size: 12 }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: true,
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: { size: 12 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: { size: 12 }
+                            }
                         }
                     },
-                    x: {
-                        ticks: {
-                            font: { size: 12 }
-                        }
+                    layout: {
+                        padding: { top: 10, bottom: 10 }
                     }
-                },
-                layout: {
-                    padding: { top: 10, bottom: 10 }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    // ============ 3. TRỊ GIÁ THEO THỜI GIAN - TÍM ============
-    const monthlyValue = {};
-    
-    all.forEach(r => {
-        const dateStr = r['Ngày phê duyệt'];
-        const value = Number(r['Thành tiền (VND)']) || 0;
-        
-        if (!dateStr || value === 0) return;
-        
-        let monthKey;
-        try {
-            let dateObj;
-            if (dateStr.includes('/')) {
-                const parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
+        // ============ 2. BOXPLOT CHUẨN ============
+        const prices = all
+            .map(r => Number(r['Đơn giá trúng thầu (VND)']))
+            .filter(p => !isNaN(p) && p > 0);
+
+        const ctxBoxplotCanvas = document.getElementById('chart-price-boxplot');
+        if (ctxBoxplotCanvas && prices.length > 0) {
+            const msg = ctxBoxplotCanvas.parentElement.querySelector('.no-data-msg');
+            if (msg) msg.classList.remove('visible');
+            ctxBoxplotCanvas.classList.remove('hidden');
+
+            const ctxBoxplot = ctxBoxplotCanvas.getContext('2d');
+            chartPriceBoxplot = new Chart(ctxBoxplot, {
+                type: 'boxplot',
+                data: {
+                    labels: ['Giá'],
+                    datasets: [{
+                        label: 'Phân bố giá',
+                        data: [prices],
+                        backgroundColor: 'rgba(108, 92, 231, 0.2)', // ĐỔI: cam → tím
+                        borderColor: '#6C5CE7', // ĐỔI: #FF6B6B → #6C5CE7
+                        borderWidth: 2,
+                        outlierBackgroundColor: '#5f3dc4', // ĐỔI: #fa5252 → tím đậm
+                        outlierBorderColor: '#5f3dc4', // ĐỔI: #fa5252 → tím đậm
+                        itemRadius: 0,
+                        outlierRadius: 3,
+                        medianColor: '#7c6eea' // ĐỔI: #c92a2a → tím sáng
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'nearest',  // Tìm element gần nhất
+                        axis: 'xy',       // Theo cả 2 trục
+                        intersect: false  // QUAN TRỌNG: Không cần hover chính xác
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'nearest',    // Tooltip hiện cho element gần nhất
+                            intersect: false,   // QUAN TRỌNG: Không cần intersect
+                            axis: 'xy',
+                            
+                            // Tăng khoảng cách nhận diện hover
+                            hitRadius: 30,      // THÊM: Tăng vùng nhận diện
+                            callbacks: {
+                                label: (context) => {
+                                    const value = context.parsed;
+                                    if (value.min !== undefined) {
+                                        return [
+                                            `Max: ${value.max.toLocaleString('vi-VN')}`,
+                                            `Q3: ${value.q3.toLocaleString('vi-VN')}`,
+                                            `Median: ${value.median.toLocaleString('vi-VN')}`,
+                                            `Q1: ${value.q1.toLocaleString('vi-VN')}`,
+                                            `Min: ${value.min.toLocaleString('vi-VN')}`
+                                        ];
+                                    }
+                                    return `${value.toLocaleString('vi-VN')}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => {
+                                    if (value >= 1_000_000) {
+                                        return (value / 1_000_000).toFixed(0).toLocaleString('vi-VN') + ' tr';
+                                    }
+                                    return value.toLocaleString('vi-VN');
+                                },
+                                font: { size: 12 }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: { top: 10, bottom: 10 }
+                    }
                 }
-            } else if (dateStr.includes('-')) {
-                dateObj = new Date(dateStr);
-            } else if (dateStr instanceof Date) {
-                dateObj = dateStr;
+            });
+        }
+
+        // ============ 3. TRỊ GIÁ THEO THỜI GIAN - TÍM ============
+        const monthlyValue = {};
+        
+        all.forEach(r => {
+            const dateStr = r['Ngày phê duyệt'];
+            const value = Number(r['Thành tiền (VND)']) || 0;
+            
+            if (!dateStr || value === 0) return;
+            
+            let monthKey;
+            try {
+                let dateObj;
+                if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
+                    }
+                } else if (dateStr.includes('-')) {
+                    dateObj = new Date(dateStr);
+                } else if (dateStr instanceof Date) {
+                    dateObj = dateStr;
+                }
+                
+                if (dateObj && !isNaN(dateObj.getTime())) {
+                    monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                }
+            } catch (e) {
+                // Skip invalid dates
             }
             
-            if (dateObj && !isNaN(dateObj.getTime())) {
-                monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-            }
-        } catch (e) {
-            // Skip invalid dates
-        }
-        
-        if (monthKey) {
-            monthlyValue[monthKey] = (monthlyValue[monthKey] || 0) + value;
-        }
-    });
-
-    const sortedMonths = Object.entries(monthlyValue)
-        .sort((a, b) => a[0].localeCompare(b[0]));
-
-    const monthLabels = sortedMonths.map(([month]) => {
-        const [year, m] = month.split('-');
-        return `${m}/${year}`;
-    });
-    const monthValues = sortedMonths.map(([, value]) => value);
-
-    const ctxTimelineCanvas = document.getElementById('chart-timeline-value');
-    if (ctxTimelineCanvas && monthLabels.length > 0) {
-        const msg = ctxTimelineCanvas.parentElement.querySelector('.no-data-msg');
-        if (msg) msg.classList.remove('visible');
-        ctxTimelineCanvas.classList.remove('hidden');
-    
-        const ctxTimeline = ctxTimelineCanvas.getContext('2d');
-        chartTimelineValue = new Chart(ctxTimeline, {
-            type: 'line',
-            data: {
-                labels: monthLabels,
-                datasets: [{
-                    label: 'Tổng trị giá (VND)',
-                    data: monthValues,
-                    backgroundColor: 'rgba(255, 107, 107, 0.1)', // ĐỔI: tím → cam
-                    borderColor: '#FF6B6B', // ĐỔI: #6C5CE7 → #FF6B6B
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 5,
-                    pointBackgroundColor: '#FF6B6B', // ĐỔI: tím → cam
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 7, // THÊM: Tăng kích thước khi hover
-                    pointHitRadius: 20 // THÊM: Tăng vùng nhận diện hover
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (item) => {
-                                const value = Number(item.raw);
-                                if (value >= 1_000_000_000) {
-                                    const v = value / 1_000_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
-                                }
-
-                                if (value >= 1_000_000) {
-                                    const v = value / 1_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
-                                }
-
-                                return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 45,
-                            font: { size: 12 }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => {
-                                if (value >= 1_000_000_000) {
-                                    const v = value / 1_000_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
-                                }
-
-                                if (value >= 1_000_000) {
-                                    const v = value / 1_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
-                                }
-
-                                return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
-                            },
-                            font: { size: 12 }
-                        }
-                    }
-                },
-                layout: {
-                    padding: { top: 10, bottom: 10 }
-                }
+            if (monthKey) {
+                monthlyValue[monthKey] = (monthlyValue[monthKey] || 0) + value;
             }
         });
-    }
 
-    // ============ 4. THÀNH TIỀN THEO HÌNH THỨC - CAM ============
-    const methodMap = {};
+        const sortedMonths = Object.entries(monthlyValue)
+            .sort((a, b) => a[0].localeCompare(b[0]));
 
-    all.forEach(r => {
-        const method = r['Hình thức lựa chọn nhà thầu'] || 'Không xác định';
-        const value = Number(r['Thành tiền (VND)']) || 0;
+        const monthLabels = sortedMonths.map(([month]) => {
+            const [year, m] = month.split('-');
+            return `${m}/${year}`;
+        });
+        const monthValues = sortedMonths.map(([, value]) => value);
+
+        const ctxTimelineCanvas = document.getElementById('chart-timeline-value');
+        if (ctxTimelineCanvas && monthLabels.length > 0) {
+            const msg = ctxTimelineCanvas.parentElement.querySelector('.no-data-msg');
+            if (msg) msg.classList.remove('visible');
+            ctxTimelineCanvas.classList.remove('hidden');
         
-        if (value > 0) {
-            if (!methodMap[method]) methodMap[method] = 0;
-            methodMap[method] += value;
-        }
-    });
-
-    const sortedMethods = Object.entries(methodMap)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 8);
-
-    const methodLabels = sortedMethods.map(x => {
-        const label = x[0];
-        return label.length > 25 ? label.substring(0, 25) + '...' : label;
-    });
-    const methodValues = sortedMethods.map(x => x[1]);
-
-    const ctxMethodCanvas = document.getElementById('chart-selection-method');
-    if (ctxMethodCanvas && methodLabels.length > 0) {
-        const msg = ctxMethodCanvas.parentElement.querySelector('.no-data-msg');
-        if (msg) msg.classList.remove('visible');
-        ctxMethodCanvas.classList.remove('hidden');
-
-        const ctxMethod = ctxMethodCanvas.getContext('2d');
-        chartSelectionMethod = new Chart(ctxMethod, {
-            type: 'bar',
-            data: {
-                labels: methodLabels,
-                datasets: [{
-                    label: 'Tổng thành tiền',
-                    data: methodValues,
-                    backgroundColor: [
-                        '#FF6B6B',
-                        '#FF8787',
-                        '#FFA3A3',
-                        '#FFBFBF',
-                        '#FF6B6B',
-                        '#FF8787',
-                        '#FFA3A3',
-                        '#FFBFBF'
-                    ],
-                    borderRadius: 8,
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
+            const ctxTimeline = ctxTimelineCanvas.getContext('2d');
+            chartTimelineValue = new Chart(ctxTimeline, {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Tổng trị giá (VND)',
+                        data: monthValues,
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)', // ĐỔI: tím → cam
+                        borderColor: '#FF6B6B', // ĐỔI: #6C5CE7 → #FF6B6B
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#FF6B6B', // ĐỔI: tím → cam
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 7, // THÊM: Tăng kích thước khi hover
+                        pointHitRadius: 20 // THÊM: Tăng vùng nhận diện hover
+                    }]
                 },
-                // indexAxis: 'x',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (item) => {
-                                const value = Number(item.raw);
-                                if (value >= 1_000_000_000) {
-                                    const v = value / 1_000_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
-                                }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (item) => {
+                                    const value = Number(item.raw);
+                                    if (value >= 1_000_000_000) {
+                                        const v = value / 1_000_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
+                                    }
 
-                                if (value >= 1_000_000) {
-                                    const v = value / 1_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
-                                }
+                                    if (value >= 1_000_000) {
+                                        const v = value / 1_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
+                                    }
 
-                                return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
+                                    return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            autoSkip: false,
-                            maxRotation: 45,
-                            minRotation: 45,
-                            font: { size: 11 }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: { size: 12 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => {
+                                    if (value >= 1_000_000_000) {
+                                        const v = value / 1_000_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
+                                    }
+
+                                    if (value >= 1_000_000) {
+                                        const v = value / 1_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
+                                    }
+
+                                    return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
+                                },
+                                font: { size: 12 }
+                            }
                         }
                     },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => {
-                                if (value >= 1_000_000_000) {
-                                    const v = value / 1_000_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
-                                }
-
-                                if (value >= 1_000_000) {
-                                    const v = value / 1_000_000;
-                                    return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
-                                }
-
-                                return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
-                            },
-                            font: { size: 12 }
-                        }
+                    layout: {
+                        padding: { top: 10, bottom: 10 }
                     }
-                },
-                layout: {
-                    padding: { top: 10, bottom: 10 }
                 }
+            });
+        }
+
+        // ============ 4. THÀNH TIỀN THEO HÌNH THỨC - CAM ============
+        const methodMap = {};
+
+        all.forEach(r => {
+            const method = r['Hình thức lựa chọn nhà thầu'] || 'Không xác định';
+            const value = Number(r['Thành tiền (VND)']) || 0;
+            
+            if (value > 0) {
+                if (!methodMap[method]) methodMap[method] = 0;
+                methodMap[method] += value;
             }
         });
-    }
-}
 
+        const sortedMethods = Object.entries(methodMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 8);
+
+        const methodLabels = sortedMethods.map(x => {
+            const label = x[0];
+            return label.length > 25 ? label.substring(0, 25) + '...' : label;
+        });
+        const methodValues = sortedMethods.map(x => x[1]);
+
+        const ctxMethodCanvas = document.getElementById('chart-selection-method');
+        if (ctxMethodCanvas && methodLabels.length > 0) {
+            const msg = ctxMethodCanvas.parentElement.querySelector('.no-data-msg');
+            if (msg) msg.classList.remove('visible');
+            ctxMethodCanvas.classList.remove('hidden');
+
+            const ctxMethod = ctxMethodCanvas.getContext('2d');
+            chartSelectionMethod = new Chart(ctxMethod, {
+                type: 'bar',
+                data: {
+                    labels: methodLabels,
+                    datasets: [{
+                        label: 'Tổng thành tiền',
+                        data: methodValues,
+                        backgroundColor: [
+                            '#FF6B6B',
+                            '#FF8787',
+                            '#FFA3A3',
+                            '#FFBFBF',
+                            '#FF6B6B',
+                            '#FF8787',
+                            '#FFA3A3',
+                            '#FFBFBF'
+                        ],
+                        borderRadius: 8,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    // indexAxis: 'x',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (item) => {
+                                    const value = Number(item.raw);
+                                    if (value >= 1_000_000_000) {
+                                        const v = value / 1_000_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
+                                    }
+
+                                    if (value >= 1_000_000) {
+                                        const v = value / 1_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
+                                    }
+
+                                    return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: { size: 11 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => {
+                                    if (value >= 1_000_000_000) {
+                                        const v = value / 1_000_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} tỷ`;
+                                    }
+
+                                    if (value >= 1_000_000) {
+                                        const v = value / 1_000_000;
+                                        return `${v.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} triệu`;
+                                    }
+
+                                    return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 });
+                                },
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: { top: 10, bottom: 10 }
+                    }
+                }
+            });
+        }
+    }
 });
 
 
-// ========== DIRECT TABLE COLUMN DRAG & DROP ==========
-let draggedColumnIndex = null;
-let draggedTable = null;
-
-// Initialize drag and drop for table headers
-function initTableColumnDragDrop() {
-    console.log('🎯 Initializing column drag & drop...');
-    initTableHeaderDrag('standard-table');
-    initTableHeaderDrag('extended-table');
-}
-
-function initTableHeaderDrag(tableId) {
-    const table = document.getElementById(tableId);
-    if (!table) {
-        console.warn(`Table ${tableId} not found`);
-        return;
-    }
-    
-    const headers = table.querySelectorAll('thead th');
-    console.log(`📋 Found ${headers.length} headers in ${tableId}`);
-    
-    headers.forEach((header, index) => {
-        // Make draggable
-        header.setAttribute('draggable', 'true');
-        header.dataset.columnIndex = index;
-        header.style.cursor = 'move';
-        
-        // Add visual drag indicator
-        if (!header.querySelector('.drag-indicator')) {
-            const dragIndicator = document.createElement('span');
-            dragIndicator.className = 'drag-indicator';
-            // dragIndicator.innerHTML = '⋮⋮';
-            header.insertBefore(dragIndicator, header.firstChild);
-        }
-        
-        // Remove old listeners if any
-        header.removeEventListener('dragstart', handleColumnDragStart);
-        header.removeEventListener('dragover', handleColumnDragOver);
-        header.removeEventListener('drop', handleColumnDrop);
-        header.removeEventListener('dragend', handleColumnDragEnd);
-        header.removeEventListener('dragenter', handleColumnDragEnter);
-        header.removeEventListener('dragleave', handleColumnDragLeave);
-        
-        // Add drag events
-        header.addEventListener('dragstart', handleColumnDragStart);
-        header.addEventListener('dragover', handleColumnDragOver);
-        header.addEventListener('drop', handleColumnDrop);
-        header.addEventListener('dragend', handleColumnDragEnd);
-        header.addEventListener('dragenter', handleColumnDragEnter);
-        header.addEventListener('dragleave', handleColumnDragLeave);
-    });
-    
-    console.log(`✅ Drag & drop initialized for ${tableId}`);
-}
-
-function handleColumnDragStart(e) {
-    draggedColumnIndex = parseInt(this.dataset.columnIndex);
-    draggedTable = this.closest('table');
-    
-    console.log(`🎬 Drag start: column ${draggedColumnIndex}`);
-    
-    this.style.opacity = '0.4';
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.innerHTML);
-    
-    draggedTable.classList.add('column-dragging');
-}
-
-function handleColumnDragOver(e) {
-    if (e.preventDefault) {
-        e.preventDefault();
-    }
-    e.dataTransfer.dropEffect = 'move';
-    return false;
-}
-
-function handleColumnDragEnter(e) {
-    if (this.closest('table') === draggedTable && 
-        parseInt(this.dataset.columnIndex) !== draggedColumnIndex) {
-        this.classList.add('drag-over');
-    }
-}
-
-function handleColumnDragLeave(e) {
-    this.classList.remove('drag-over');
-}
-
-function handleColumnDrop(e) {
-    if (e.stopPropagation) {
-        e.stopPropagation();
-    }
-    
-    const dropColumnIndex = parseInt(this.dataset.columnIndex);
-    
-    console.log(`📍 Drop: from ${draggedColumnIndex} to ${dropColumnIndex}`);
-    
-    // Only process if dropping on same table and different column
-    if (this.closest('table') === draggedTable && draggedColumnIndex !== dropColumnIndex) {
-        reorderTableColumns(draggedTable, draggedColumnIndex, dropColumnIndex);
-    }
-    
-    return false;
-}
-
-function handleColumnDragEnd(e) {
-    this.style.opacity = '1';
-    
-    console.log('🏁 Drag end');
-    
-    // Remove all drag-over classes
-    if (draggedTable) {
-        const headers = draggedTable.querySelectorAll('thead th');
-        headers.forEach(header => {
-            header.classList.remove('drag-over');
-        });
-        
-        draggedTable.classList.remove('column-dragging');
-    }
-    
-    draggedColumnIndex = null;
-    draggedTable = null;
-}
-
-// CẬP NHẬT THỨ TỰ CỘT SAU KHI DRAG-DROP
-function updateColumnOrder(table) {
-  const tableId = table.id;
-  const headers = table.querySelectorAll('thead th');
-  const newOrder = Array.from(headers).map(h =>
-    h.textContent.trim()
-  );
-
-  if (tableId === 'standard-table') {
-    currentColumnOrderDf1 = newOrder;
-    localStorage.setItem('columnOrderDf1', JSON.stringify(newOrder));
-    console.log('✅ Cập nhật thứ tự cột DF1:', currentColumnOrderDf1);
-  } else if (tableId === 'extended-table') {
-    currentColumnOrderDf2 = newOrder;
-    localStorage.setItem('columnOrderDf2', JSON.stringify(newOrder));
-    console.log('✅ Cập nhật thứ tự cột DF2:', currentColumnOrderDf2);
-  }
-}
-
-// Reorder columns in table DOM
-function reorderTableColumns(table, fromIndex, toIndex) {
-    console.log(`🔄 Reordering columns: ${fromIndex} → ${toIndex}`);
-    
-    const rows = table.querySelectorAll('tr');
-    
-    rows.forEach(row => {
-        const cells = Array.from(row.children);
-        
-        if (fromIndex >= cells.length || toIndex >= cells.length) {
-            return;
-        }
-        
-        const draggedCell = cells[fromIndex];
-        
-        // Remove the dragged cell
-        draggedCell.remove();
-        
-        // Insert at new position
-        if (toIndex >= row.children.length) {
-            row.appendChild(draggedCell);
-        } else {
-            const referenceCell = row.children[toIndex];
-            row.insertBefore(draggedCell, referenceCell);
-        }
-    });
-    
-    // Update column indices after reorder
-    const headers = table.querySelectorAll('thead th');
-    headers.forEach((header, index) => {
-        header.dataset.columnIndex = index;
-    });
-    
-    console.log('✅ Columns reordered successfully');
-
-    // Cập nhật thứ tự cột toàn cục
-    updateColumnOrder(table);
-}
-
-function applySavedColumnOrder(tableId, columnOrder) {
-  const table = document.getElementById(tableId);
-  if (!table || !columnOrder || columnOrder.length === 0) return;
-
-  const headers = Array.from(table.querySelectorAll('thead th'));
-  if (headers.length === 0) return;
-
-  // Duyệt theo thứ tự mong muốn, với từng header name → tìm index hiện tại và move
-  columnOrder.forEach((colName, targetIndex) => {
-    const currentHeaders = Array.from(table.querySelectorAll('thead th'));
-    const currentIndex = currentHeaders.findIndex(
-      h => h.textContent.trim() === colName.trim()
-    );
-    if (currentIndex === -1 || currentIndex === targetIndex) return;
-    reorderTableColumns(table, currentIndex, targetIndex);
-  });
-}
 
 // Initialize on page load
 window.addEventListener('load', function() {

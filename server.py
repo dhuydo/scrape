@@ -31,6 +31,7 @@ def load_df1():
         return None
     
     df = pd.read_excel(file_path)
+    df = df.drop_duplicates(keep=False)
     df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
     df['Ngày phê duyệt'] = pd.to_datetime(df['Ngày phê duyệt'], format='%d/%m/%Y', errors='coerce')

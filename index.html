@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tra cứu kết quả đấu thầu thuốc</title>
+    <title>Hệ thống tra cứu Thuốc trúng thầu</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
@@ -53,7 +53,13 @@
                     <span>Xuất Excel</span>
                 </button>
             </div>
-
+            
+            <!-- Thêm vào phía trên mỗi bảng dữ liệu -->
+            <div id="result-warning" style="display: none; background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+                <strong>⚠️ GIỚI HẠN KẾT QUẢ TÌM KIẾM</strong><br>
+                <!-- Chỉ hiển thị <span id="displayed-count"></span> / <span id="total-count"></span> bản ghi.  -->
+                Vui lòng thu hẹp điều kiện tìm kiếm.
+            </div>
 
             <!-- TAB 1: DATA TABLES -->
             <div id="data-tab" class="tab-content active">

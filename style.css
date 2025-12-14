@@ -1650,3 +1650,14 @@ table thead th.drag-over::before {
         opacity: 0.5;
     }
 }
+
+/* Warning nhỏ gọn */
+#result-warning{
+  display: inline-block;      /* không full width */
+  /* width: fit-content; */
+  max-width: 360px;           /* tránh quá dài trên màn hình lớn */
+  margin: 12px 0 16px;     /* canh giữa */
+  padding: 10px 14px;
+  border-radius: 10px;
+  line-height: 1.4;
+}

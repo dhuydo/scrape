@@ -530,6 +530,11 @@ class CustomSearchForm extends HTMLElement {
                 </div>
             </div>
         `;
+        // ✅ Disable nút áp dụng lúc ban đầu + theo dõi input thay đổi
+        this.attachInputListeners();
+        this.updateApplyButtonState();
+
+        
 
         const root = this.shadowRoot;
 
@@ -634,6 +639,12 @@ class CustomSearchForm extends HTMLElement {
 
         // Apply filters button
         root.getElementById('apply-filters-btn').addEventListener('click', () => {
+            // ✅ Kiểm tra trước khi dispatch
+            const applyBtn = root.getElementById('apply-filters-btn');
+            if (applyBtn.disabled) {
+                return; // không làm gì nếu nút đang disabled
+            }
+            
             const payload = {
                 // Thông tin thời gian
                 dateFrom: root.getElementById('filter-date-from').value,
@@ -698,6 +709,42 @@ class CustomSearchForm extends HTMLElement {
                 bubbles: true,
                 composed: true
             }));
+        }); 
+    }
+    
+    updateApplyButtonState() {
+        const root = this.shadowRoot;
+        if (!root) return;
+
+        const applyBtn = root.getElementById('apply-filters-btn');
+        if (!applyBtn) return;
+
+        // Lấy toàn bộ input/select/textarea trong shadow DOM
+        const inputs = root.querySelectorAll('input, select, textarea');
+
+        const hasAnyValue = Array.from(inputs).some(el => {
+            // Bỏ qua các input không thuộc filter nếu có (vd nút, hidden)
+            if (el.type === 'button' || el.type === 'submit' || el.type === 'reset') return false;
+
+            if (el.type === 'checkbox' || el.type === 'radio') return el.checked;
+
+            return (el.value ?? '').toString().trim() !== '';
+        });
+
+        applyBtn.disabled = !hasAnyValue;
+        applyBtn.style.opacity = hasAnyValue ? '1' : '0.5';
+        applyBtn.style.cursor = hasAnyValue ? 'pointer' : 'not-allowed';
+        applyBtn.title = hasAnyValue ? '' : 'Vui lòng nhập hoặc chọn ít nhất một tiêu chí tìm kiếm';
+        }
+
+    attachInputListeners() {
+        const root = this.shadowRoot;
+        if (!root) return;
+
+        const inputs = root.querySelectorAll('input, select, textarea');
+        inputs.forEach(el => {
+            el.addEventListener('input', () => this.updateApplyButtonState());
+            el.addEventListener('change', () => this.updateApplyButtonState());
         });
     }
 }
